@@ -1,0 +1,141 @@
+# http://jonas.nitro.dk/tig/tigrc.5.html
+# https://github.com/jonas/tig/wiki/Bindings
+
+# Stage a single line
+bind stage 1 stage-update-line
+
+# Edit the configuration (start the editor)
+bind generic xrc !sh -c "$EDITOR $HOME/.tigrc"
+
+# Reload the configuration
+bind generic xrel :source ~/.tigrc
+
+# Delete a file
+bind status D none
+bind status DD !@?rm %(file)
+
+# Revert a commit
+bind main ! !git revert %(commit)
+
+# git add --intent-to-add/-N
+bind status N !@git add -N %(file)
+
+# Tag the selected commit
+bind main xtam !git tag -s -a -m "%(prompt The message: )" "%(prompt New tag name: )" %(commit)
+bind main xtae !git tag -s -a "%(prompt New tag name: )" %(commit)
+bind main xtg !git tag -s "%(prompt New tag name: )" %(commit)
+
+# Rebase in interactive mode (from the select commit)
+bind main xri !git rebase -i %(commit)~"%(prompt Number of commits to rebase in interactive mode: )"
+# Plain `git rebase' (a `generic' one)
+bind main xrg !git rebase
+
+# git reset --hard in various variants and bindings
+bind main xRHH !git reset --hard HEAD~
+bind main xRHhH !git reset --hard HEAD~~
+bind main xRHhhH !git reset --hard HEAD~~~
+bind main xRHm1 !git reset --hard HEAD~
+bind main xRHm2 !git reset --hard HEAD~~
+bind main xRHm3 !git reset --hard HEAD~~~
+bind main xRHmm1 !git reset --hard HEAD~~
+bind main xRHmmm1 !git reset --hard HEAD~~~
+
+# Amend the last commit
+bind main C none
+bind generic CC !git commit -v
+bind generic Ca !git commit -v --amend
+
+# Stash save
+bind status xss @git stash save "%(prompt New stash name: )"
+# Stash all – also untracked files
+bind status xsis @git stash save --include-untracked "%(prompt New stash name: )"
+# Drop the selected stash
+bind stash D !?git stash drop %(stash)
+# Apply the selected stash
+bind stash A !?git stash apply %(stash)
+
+# Copy commit title to clipboard
+bind generic xtcp !@sh -c "git show -s --format=%s %(commit) | xsel -ib"
+
+# Add selected file to .gitignore and open vim for additional changes
+bind status xig !sh -c "printf %(file)\\\\n >> \"$(git rev-parse --show-toplevel)/.gitignore\" && $EDITOR \"$(git rev-parse --show-toplevel)/.gitignore\""
+
+# Compare two selected commits
+bind main xd2 !sh -c "echo Checking branch existence; \
+    if [ \"$(git branch --list temp-compare-base)\" != \"\" ]; then\
+        echo Branch exists, comparing with %(commit); \
+        git difftool -d temp-compare-base..%(commit); \
+        git branch --delete temp-compare-base; \
+    else \
+        echo Creating initial branch at %(commit); \
+        git branch temp-compare-base %(commit); \
+    fi;"
+
+# Compare changed file in status view
+bind status xdf !sh -c "git difftool -y \"$(git rev-parse --show-toplevel)/%(file)\""
+
+# Compare selected commit in log view (main view) with its parent
+bind main xdp !git difftool -d %(commit)^!
+
+# Create a new branch from the selected one
+bind refs xnb !@git checkout -b "%(prompt New branch name: )" %(branch)
+
+# Add notes to a commit
+bind generic T !git notes edit %(commit)
+
+# Less-like scrolling
+bind generic <Ctrl-f> scroll-page-down
+bind generic <Ctrl-b> scroll-page-up
+
+# Update (Pull) remotes changes from origin
+bind main U !git pull --rebase %(remote) %(branch)
+bind status U !git pull --rebase %(remote) %(branch)
+bind refs U !git pull --rebase %(remote) %(branch)
+
+# Push local changes to origin
+bind status P !git push %(remote)
+bind status xpga !git push
+bind status xpom !git push origin master
+bind status xpog !git push origin
+bind main P !git push %(remote)
+bind main xpga !git push
+bind main xpom !git push origin master
+bind main xpog !git push origin
+bind diff P !git push %(remote)
+bind diff xpga !git push
+bind diff xpom !git push origin master
+bind diff xpog !git push origin
+bind stage P !git push %(remote)
+bind stage xpga !git push
+bind stage xpom !git push origin master
+bind stage xpog !git push origin
+
+# Force-push local changes to origin
+bind status F !git push %(remote) -f
+bind status xfpga !git push -f
+bind status xfpom !git push -f origin master
+bind status xfpog !git push -f origin
+bind main F !git push %(remote) -f
+bind main xfpga !git push -f
+bind main xfpom !git push -f origin master
+bind main xfpog !git push -f origin
+bind diff F !git push %(remote) -f
+bind diff xfpga !git push -f
+bind diff xfpom !git push -f origin master
+bind diff xfpog !git push -f origin
+
+# Prune remote refs
+bind refs xrep !git remote prune %(remote)
+
+# Push and track new branch
+bind refs xpsu !git push --set-upstream origin %(branch)
+
+bind refs xllf !git llf
+
+# Open the commit on Github
+bind generic Bc @sh -c "xdg-open 'https://'$(git remote -v | grep -Eo 'github.com[:/][^.]+' | head -1 | sed 's/ (fetch)//g' | tr : /)'/commit/%(commit)'"
+bind generic Bh @git open
+
+bind generic xoc !printf %(commit)\n
+bind generic xcpc +sh -c "printf %(commit) | xsel -ib && printf \"The commit ID has been copied.\" || printf \"Problems copying the commit ID.\""
+bind generic xcpf +sh -c "xsel -ib <\"%(file)\" && printf \"The file contents have been copied.\" || printf \"Problems copying the file contents.\""
