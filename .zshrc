@@ -3,7 +3,7 @@
 #
 
 path+=( /sbin /usr/sbin )
-module_path+=("$HOME/.zinit/bin/zmodules/Src"); zmodload zdharma/zplugin &>/dev/null
+#module_path+=("$HOME/.zinit/bin/zmodules/Src"); zmodload zdharma/zplugin &>/dev/null
 
 typeset -g HISTSIZE=290000 SAVEHIST=290000 HISTFILE=~/.zhistory ABSD=${${(M)OSTYPE:#*(darwin|bsd)*}:+1}
 
@@ -92,14 +92,17 @@ zle -N self-insert url-quote-magic
 #
 
 alias pl='print -rl --'
+alias pRl='print -l --'
 #alias ls="gls -bh --color=auto"
-alias ls="exa -bh --color=auto"
-alias l="ls"      l.='ls -d .*'   la='ls -a'   ll='ls -lbt created'  rm='command rm -i'
-alias df='df -h'  du='du -h'      cp='cp -v'   mv='mv -v'      plast="last -20"
+alias ls="psls -bh --color=auto"
+alias l="ls"      l.='ls -d .*'   la='ls -a'   ll='ls -lbt created'  
+alias mv='mv -v'  cp='cp -v'      rm='command rm -i'
+alias df='df -h'  du='du -h'      plast="last -20"
 alias reload="exec $SHELL -l -i"  grep="command grep --colour=auto --binary-files=without-match --directories=skip"
-alias lynx="command lynx -accept-all-cookies"  ult="ulimit -c 195312; echo $$"
-ulimit -c unlimited
+alias lynx="command lynx -accept-all-cookies"
+alias ult="ulimit -c 195312; echo $$"
 
+ulimit -c unlimited
 # Git
 alias g1log_branches="git log --color=always --oneline --decorate --graph --branches"
 alias g1log_branches_intag="echo You can append a tag name; LANG=C sleep 0.5; git log --color=always --oneline --decorate --graph --branches"
@@ -202,7 +205,8 @@ autoload -Uz psprobe_host   psffconv    pssetup_ssl_cert    psrecompile    pscop
              f1rechg_x_min  f1biggest \
              n1gglinks      n1dict      n1diki              n1gglinks      n1ggw3m         n1ling  n1ssl_tunnel \
 	     n1ssl_rtunnel  \
-             pngimage       deploy-code deploy-message
+             pngimage       deploy-code deploy-message \
+             exchange
 
 autoload +X zman
 functions[zzman]="${functions[zman]}"
@@ -211,8 +215,8 @@ function run_diso {
   disown
 }
 
-function pbcopydir {
-  pwd | tr -d "\r\n" | pbcopy
+function copydir {
+  pwd | tr -d "\r\n" | xsel -ib 
 }
 
 function from-where {
@@ -501,12 +505,12 @@ function mem() { ps -axv | grep $$  }
 
 export GOPATH="/Users/sgniazdowski/go"
 
-zflai-msg "[zshrc] Finishing, loaded custom modules: ${(j:, :@)${(k)modules[@]}:#zsh/*}"
-
+# Ubuntu aliases
 alias i='sudo apt-get install'
 alias s='apt-cache search'
 alias r='sudo apt-get remove'
 
+# Some other stuff…
 zinit-palette() {
     for k ( "${(@kon)ZINIT[(I)col-*]}" ); do
         local i=$ZINIT[$k]
@@ -517,3 +521,6 @@ zinit-palette() {
 
 ##[keyfile]
 ##unmanaged-devices=*,except:type:wifi,except:type:wwan,except:type:ethernet
+
+zflai-msg "[zshrc] Finishing, loaded custom modules: ${(j:, :@)${(k)modules[@]}:#zsh/*}"
+
