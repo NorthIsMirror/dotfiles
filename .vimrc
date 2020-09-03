@@ -1,4 +1,6 @@
-set isk+=@-@,.,:,-
+set viminfo='100,<100000,s100,%,/10000
+set history=10000
+set isk+=@-@,.,:,-,+
 
 set completeopt+=noinsert,menuone
 inoremap <BS> <BS><C-R>=pumvisible() ? "" : "\<lt>C-N>"<CR>
@@ -12,7 +14,7 @@ endif
 " guard for distributions lacking the 'persistent_undo' feature.
 if has('persistent_undo')
     " define a path to store persistent undo files.
-    let target_path = expand('~/.config/vim-persisted-undo/')    " create the directory and any parent directories
+    let target_path = expand('~/.vim/vim-persisted-undo/')    " create the directory and any parent directories
     " if the location does not exist.
     if !isdirectory(target_path)
         call mkdir(target_path, 'p')
@@ -22,13 +24,18 @@ if has('persistent_undo')
 endif
 set undolevels=10000
 
+
 " OPTIONS {{{1
+set directory=$HOME/.vim/swapfiles//
+set foldopen=mark,percent,quickfix,search,tag,undo
+
 if v:lang =~ "utf8$" || v:lang =~ "UTF-8$"
    "set fileencodings=utf-8,latin2,latin1
 endif
 
 set nocompatible
 set modeline
+set modelines=5
 " Format
 set ts=8
 set sts=4
@@ -36,7 +43,7 @@ set sw=4
 set et
 " File
 set backup
-set backupdir=~/tmp/vitmp
+set backupdir=$HOME/Safe/vitmp,~/tmp/vitmp
 set viminfo='50,\"2000			" 2000 register lines 
 set history=500
 set printoptions=left:15mm,right:15mm,top:15mm,bottom:20mm,syntax:y,paper:A4
@@ -73,6 +80,17 @@ if has("autocmd")
     \ if line("'\"") > 0 && line ("'\"") <= line("$") |
     \   exe "normal g'\"" |
     \ endif
+"    augroup how_many_characters_yank
+"        au!
+"	au TextYankPost * call s:how_many_characters_yank()
+"    augroup END
+"
+"    fu! s:how_many_characters_yank() abort
+"	if len(v:event.regcontents) == 1 || len(v:event.regcontents) == 2 && v:event.regcontents[1] is# ''
+"	    redraw
+"	    echo strchars(join(v:event.regcontents, ''), 1)
+"	endif
+"    endfun
 endif " 1}}}
 " XXD {{{1
 augroup Binary
@@ -111,14 +129,40 @@ endif " 1}}}
 set laststatus=2
 
 if has('statusline')
+    function! InsertStatuslineColor(state)
+        let g:state = a:state
+        if a:state == 'i'
+            hi statusline ctermfg=17 ctermbg=Yellow guifg=DarkBlue guibg=Yellow
+        elseif a:state == 'r'
+            hi statusline ctermfg=Yellow ctermbg=Red guifg=Yellow guibg=Gray
+        elseif a:state == 'n'
+            hi statusline ctermfg=227 cterm=bold ctermbg=Blue guifg=Gold guibg=Blue
+        " TODO¿
+        elseif a:state == 'v'
+            hi statusline ctermfg=220 cterm=bold ctermbg=22 guifg=Gold guibg=Blue
+        elseif a:state == 'c'
+            hi statusline ctermfg=220 cterm=bold ctermbg=22 guifg=Gold guibg=Blue
+            redraw
+        else
+            hi statusline ctermfg=Yellow ctermbg=Blue guifg=Yellow guibg=Blue
+        endif
+    endfunction
+
+    au InsertEnter * call InsertStatuslineColor(v:insertmode)
+    au InsertLeave * call InsertStatuslineColor('n')
+    au CmdwinEnter * call InsertStatuslineColor('c')
+    au CmdwinLeave * call InsertStatuslineColor('n')
+
+    " Initialize.
+    call InsertStatuslineColor('n')
+    hi statuslinenc ctermfg=17 ctermbg=White guifg=DarkBlue guibg=White
 
     " CALLBACK {{{2
     function SetStatusLineStyle()
-        " Pobranie aktualnego czasu przed wyswietleniem
-        let l:tmptime = strftime("%H:%M")
-        let &stl="%f %y%([%R%M]%)%{'!'[&ff=='".&ff."']}%{'$'[!&list]}%{'~'[&pm=='']}\ %2*[#%02n]%*\ %2*[".l:tmptime."]%*\ char=0x%02B\,%03b\ %=%{SL_Options()}\ %18.(%l/%L\ %=%c%V%)"
+        let fnsize = &columns - 70 
+        let &stl="%2*%.".fnsize."F%*%y%([%R%M]%)%{'!'[&ff=='".&ff."']}%{'$'[!&list]}%{'~'[&pm=='']}\ ¿ %2*%{strftime('%H:%M')}%* ¿ chr=0x%02B\,%03b\ %=%{SL_Options()}\ \ %l/%L¿%v\ ¿\ %=%c%V"
 
-        call SetStatusLineColor()
+        "call SetStatusLineColor()
     endfunc " 2}}}
     function SetStatusLineColor() " {{{2
         " Doesn't actually work
@@ -131,19 +175,21 @@ if has('statusline')
         endif
     endfunc " 2}}}
     function! SL_Options() " {{{2
-        let opt=""
+        let namemap= { 'i' : '¿INS¿', 'r' : '¿REPL¿', 'v' : 'VIS', 'n':'NRM' }
+        let opt=" "
         " autoindent
-        if &ai|   let opt=opt." ai"   |endif
+        if &fo =~ 'a' && &ai|   let opt=opt."¿FO¿"   |endif
+        if &ai|   let opt=opt."-AU¿IN"   |endif
         "  expandtab
         if &et|   let opt=opt." et"   |endif
         "  hlsearch
         if &hls|  let opt=opt." hls"  |endif
         "  paste
-        if &paste|let opt=opt." paste"|endif
+        if &paste|let opt=opt." «PASTE»"|endif
         "  shiftwidth
-        if &shiftwidth!=8|let opt=opt." sw=".&shiftwidth|endif
+        if &shiftwidth!=8|let opt=opt." SFT=".&shiftwidth|endif
         "  textwidth - show always!
-        let opt=opt." tw=".&tw
+        let opt=opt." TX-WI=".&tw
         return opt
     endf " 2}}}
 
@@ -176,8 +222,8 @@ nnoremap    <F12>   :make<CR>
 inoremap    <F12>   <C-O>:make<CR>
 nnoremap    <F11>   :cnext<CR>
 inoremap    <F11>   <C-O>:cnext<CR>
-nnoremap    <silent> <F8> :call SG_ToggleMouse()<CR>
-inoremap    <silent> <F8> <C-O>:call SG_ToggleMouse()<CR>
+nnoremap    <silent> <F8> :call G_ToggleMouse()<CR>
+inoremap    <silent> <F8> <C-O>:call G_ToggleMouse()<CR>
 set pastetoggle=<F7>
 nmap        <F4>    a<C-R>=strftime("%Y-%m-%d %a %H:%M")<CR><Esc>
 imap        <F4>    <C-R>=strftime("%Y-%m-%d %a %H:%M")<CR>
@@ -264,16 +310,16 @@ map <Leader>'o <Plug>OtherFile
 nnoremap <Leader>'z :%s/\<<C-R><C-W>\>/
 inoremap <Leader>'z <ESC>:%s/\<<C-R><C-W>\>/
 
-nnoremap <silent> <Leader>'Z :call SG_BeginSubstituteCommandFromVisualMode()<CR>v
-inoremap <silent> <Leader>'Z <ESC>:call SG_BeginSubstituteCommandFromVisualMode()<CR>v
-vnoremap <silent> <Leader>'Z <ESC>:call SG_BeginSubstituteCommandFromVisualMode()<CR>vgv
-function! SG_BeginSubstituteCommandFromVisualMode()
+nnoremap <silent> <Leader>'Z :call G_BeginSubstituteCommandFromVisualMode()<CR>v
+inoremap <silent> <Leader>'Z <ESC>:call G_BeginSubstituteCommandFromVisualMode()<CR>v
+vnoremap <silent> <Leader>'Z <ESC>:call G_BeginSubstituteCommandFromVisualMode()<CR>vgv
+function! G_BeginSubstituteCommandFromVisualMode()
     vnoremap <buffer> y y<CR>:unmap <buffer> y<CR>:%s/<C-R>"/
 endfunction
 " 1}}}
-" function! SG_WriteBackup {{{1
-nnoremap <Leader>'b :call SG_WriteBackup()<CR>
-function! SG_WriteBackup()
+" function! G_WriteBackup {{{1
+nnoremap <Leader>'b :call G_WriteBackup()<CR>
+function! G_WriteBackup()
     let fname   = expand("%:t") . "__" . strftime("%m_%d_%Y_%H.%M.%S")
     let dirname = strftime("%m_%Y")
     " TODO call mkdir()
@@ -282,7 +328,7 @@ function! SG_WriteBackup()
     echo "Wrote " . dirname . "/" . fname
 endfun
 " 1}}}
-function! SG_NoUTFPolishLeters() " {{{1
+function! G_NoUTFPolishLeters() " {{{1
     :%s/Ä„/A/ge
     :%s/Ä…/a/ge
     :%s/Ä†/C/ge
@@ -302,7 +348,7 @@ function! SG_NoUTFPolishLeters() " {{{1
     :%s/Å»/Z/ge
     :%s/Å¼/z/ge
 endfunction " 1}}}
-function! SG_NoISOPolishLeters() " {{{1
+function! G_NoISOPolishLeters() " {{{1
     :%s/¡/A/ge
     :%s/±/a/ge
     :%s/Æ/C/ge
@@ -322,7 +368,7 @@ function! SG_NoISOPolishLeters() " {{{1
     :%s/¯/Z/ge
     :%s/¿/z/ge
 endfunction " 1}}}
-function! SG_off_FixUtf8() " {{{1
+function! G_off_FixUtf8() " {{{1
     " e,
     :%s/Ä™/e/ge
     " \l
@@ -350,7 +396,7 @@ function! SG_off_FixUtf8() " {{{1
     "
     :%s///ge
 endfunction " 1}}}
-function SG_ToggleMouse() " {{{1
+function G_ToggleMouse() " {{{1
     if &mouse=='a'
         set mouse=
         echo "Mouse off"
@@ -359,7 +405,7 @@ function SG_ToggleMouse() " {{{1
         echo "Mouse on"
     endif
 endfunction " 1}}}
-function! SG_FixPascalCode() " {{{1
+function! G_FixPascalCode() " {{{1
     :%s/\<function\>/Function/gie
     :%s/\<begin\>/Begin/gie
     :%s/\<program\>/Program/gie
@@ -376,10 +422,10 @@ function! SG_FixPascalCode() " {{{1
     :%s///gie
 endfunction " 1}}}
 " ILIST {{{1
-nnoremap <Leader>'fk :call SG_UnderFilterOccurences()<CR>
-nnoremap <Leader>'fp :call SG_PromptFilterOccurences()<CR>
+nnoremap <Leader>'fk :call G_UnderFilterOccurences()<CR>
+nnoremap <Leader>'fp :call G_PromptFilterOccurences()<CR>
 
-function! SG_UnderFilterOccurences()
+function! G_UnderFilterOccurences()
     let v:errmsg = ""
     exe "normal [I"
     if v:errmsg != ""
@@ -395,7 +441,7 @@ function! SG_UnderFilterOccurences()
         echohl WarningMsg | echomsg "Nie bylo takiego numeru"  | echohl None
     endif
 endfunction!
-function! SG_PromptFilterOccurences()
+function! G_PromptFilterOccurences()
     let pattern = input("Czego szukac: ")
     if pattern == ""
         return
@@ -420,9 +466,29 @@ endfunction
 
 " Shorthand notation; fetches https://github.com/junegunn/vim-easy-align
 call plug#begin('~/.vim/plugged')
-Plug 'junegunn/vim-easy-align'
-Plug 'farmergreg/vim-lastplace'
-Plug 'Valodim/vim-zsh-completion'
+
+" Make sure you use single quotes
+
+Plug 'Jaredgorski/Spacecamp'
+Plug 'Marfisc/Vorange'
+Plug 'Flrnprz/plastic.vim'
+
+Plug 'junegunn/vim-github-dashboard'
+Plug 'mhinz/vim-startify'
+
+Plug 'zphere-zsh/vim-user-menu'
+Plug 'zphere-zsh/clavichord-omni-completion'
+Plug 'zphere-zsh/shell-omni-completion'
+Plug 'zphere-zsh/shell-auto-popmenu'
 call plug#end()
 
+"colorscheme spacecamp
 
+let g:zekyll_debug = 1
+let g:zekyll_messages = 1
+
+highlight Pmenu      ctermfg=3 ctermbg=4 guifg=#ff0000 guibg=#00ff00
+highlight PmenuSel   ctermfg=2 ctermbg=3 guifg=#ff0000 guibg=#00ff00
+highlight PmenuSbar  ctermfg=3 ctermbg=4 guifg=#ff0000 guibg=#00ff00
+highlight PmenuThumb ctermfg=3 ctermbg=4 guifg=#ff0000 guibg=#00ff00
+call matchadd('ColorColumn', '\(\%87v\)')
