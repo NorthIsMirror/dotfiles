@@ -3,8 +3,7 @@ set history=10000
 set isk+=@-@,.,:,-,+
 set report=0
 
-set completeopt+=noinsert,menuone
-inoremap <BS> <BS><C-R>=pumvisible() ? "" : "\<lt>C-N>"<CR>
+set completeopt+=noinsert,menuone,popup
 
 if exists("*mkdir")
     if !isdirectory($HOME."/tmp/vitmp")
@@ -58,7 +57,7 @@ set listchars+=precedes:<,extends:>	" screen boundary marks when nowrap
 set sidescroll=1			" horizontal scroll lines
 set noignorecase
 set bs=2				" backspace moves across all boundaries
-set wrap
+set nowrap
 set foldmethod=marker
 set swb=usetab				" switching buffers includes those in tabs
 " Function
@@ -120,25 +119,19 @@ endif " 1}}}
 if &t_Co > 2 || has("gui_running")
     syntax on
     set hlsearch
-    colorscheme delek
+    "colorscheme slate
+    "colorscheme koehler
     hi Special                      ctermfg=yellow guifg=Orange cterm=none gui=none
 endif " 1}}}
-" SHIFT-INSERT {{{1
-if 0 && has("gui_running")
-    set mousehide
-    map <S-Insert> <MiddleMouse>
-    map! <S-Insert> <MiddleMouse>
-else
-    map <S-Insert> <RightMouse>
-    map! <S-Insert> <RightMouse>
-endif " 1}}}
+
  " Status line {{{1
 set laststatus=2
 
 if has('statusline')
     " Modifiable, RO, Modified, Special
     let g:colormap = {
-                \    '...1' : [ 227, 19 ],
+                \    '..11' : [ 227, "red" ],
+                \    '..01' : [ 227, 19 ],
                 \    '.110' : [ 17, "green"],
                 \    '.100' : [ "yellow", 21 ],
                 \    '0010' : [ 220, "red"],
@@ -151,11 +144,11 @@ if has('statusline')
         let [ g:state, g:the_key ] = [ a:state, "" ]
         let q = &modifiable . &ro . &modified . ( empty(&bt) ? "0" : "1" )
         let res = filter(copy(g:colormap), "q =~ '^'.v:key.'$'")
-        let resa = filter(['...1','1000','1010','.110',
+        let resa = filter(['..11','..01','1000','1010','.110',
                     \ '.100','0010','0..0','.000','.010'], "(has_key(res,v:val) &&
                     \ empty(g:the_key)) ? !empty(extend(g:,{'the_key':v:val})) : 0")
         let res = !empty(g:the_key) ? g:colormap[g:the_key] : [ 220, 17 ]
-        " echom "Got g:the_key: �" g:the_key "�" "res: ��" string(res) "��"
+        "echom "Got g:the_key: →" g:the_key "←" "res: →→" string(res) "←←"
         if a:state == 'i'
             let res = !(!empty(res[0])+!empty(res[1])) ? [ 220, 17 ] : res
             exe "hi" "statusline" "ctermfg=".res[1] "ctermbg=".res[0] "guifg=DarkBlue" "guibg=Yellow"
@@ -165,19 +158,19 @@ if has('statusline')
         elseif a:state == 'n'
             let res = !(!empty(res[0])+!empty(res[1])) ? [ 227, "Blue" ] : res
             exe "hi" "statusline" "ctermfg=".res[1] "ctermbg=".res[0] "guifg=Yellow" "guibg=Blue"
-        " TODO�
+        " TODO…
         elseif a:state == 'v'
             let res = !(!empty(res[0])+!empty(res[1])) ? [ 220, 22 ] : res
             exe "hi" "statusline" "ctermfg=".res[1] "ctermbg=".res[0] "guifg=Yellow" "guibg=Gray"
         elseif a:state == 'c'
             let res = !(!empty(res[0])+!empty(res[1])) ? [ 220, 22 ] : res
             exe "hi" "statusline" "ctermfg=".res[1] "ctermbg=".res[0] "guifg=Yellow" "guibg=Gray"
-            redraw!
+            redraw
         else
             let res = !(!empty(res[0])+!empty(res[1])) ? [ 220, "Blue" ] : res
             exe "hi" "statusline" "ctermfg=".res[1] "ctermbg=".res[0] "guifg=Yellow" "guibg=Blue"
         endif
-        " echom "Got g:the_key: �" g:the_key "�" "res: ��" string(res) "��"
+        "echom "Got g:the_key: →" g:the_key "←" "res: →→" string(res) "←←"
     endfunction
 
     au InsertEnter * call InsertStatuslineColor(v:insertmode)
@@ -201,7 +194,7 @@ if has('statusline')
     " CALLBACK {{{2
     function SetStatusLineStyle()
         let fnsize = &columns - 70 
-        let &stl="� %4*%.".fnsize."F%*%y%([%R%M]%)%{'!'[&ff=='".&ff."']}%{'$'[!&list]}%{'~'[&pm=='']}\ � %5*%{strftime('%H:%M')}%* � chr=0x%02B\,%03b\ %=%{SL_Options()}\ \ %l/%L�%v\ �\ %=%c%V"
+        let &stl="≈ %4*%.".fnsize."F%*%y%([%R%M]%)%{'!'[&ff=='".&ff."']}%{'$'[!&list]}%{'~'[&pm=='']}\ ≈ %5*%{strftime('%H:%M')}%* ≈ chr=0x%02B\,%03b\ %=%{SL_Options()}\ \ %l/%L≈%v\ ↔\ %=%c%V"
 
         "call SetStatusLineColor()
     endfunc " 2}}}
@@ -216,17 +209,17 @@ if has('statusline')
         endif
     endfunc " 2}}}
     function! SL_Options() " {{{2
-        let namemap= { 'i' : '�INS�', 'r' : '�REPL�', 'v' : 'VIS', 'n':'NRM' }
+        let namemap= { 'i' : '—INS—', 'r' : '—REPL—', 'v' : 'VIS', 'n':'NRM' }
         let opt=" "
         " autoindent
-        if &fo =~ 'a' && &ai|   let opt=opt."�FO�"   |endif
-        if &ai|   let opt=opt."�AUI"   |endif
+        if &fo =~ 'a' && &ai|   let opt=opt."→FO←"   |endif
+        if &ai|   let opt=opt."—AUI"   |endif
         "  expandtab
         if &et|   let opt=opt." et"   |endif
         "  hlsearch
         if &hls|  let opt=opt." hls"  |endif
         "  paste
-        if &paste|let opt=opt." �PASTE�"|endif
+        if &paste|let opt=opt." «PASTE»"|endif
         "  shiftwidth
         if &shiftwidth!=8|let opt=opt." SFT=".&shiftwidth|endif
         "  textwidth - show always!
@@ -250,7 +243,6 @@ if has('statusline')
     hi User5 cterm=NONE    ctermfg=white ctermbg=57 cterm=bold guifg=yellow guibg=darkblue
 endif  " 1}}}
 
-" SET FOLDTEXT {{{1
 "
 " MyFoldText
 "
@@ -261,8 +253,9 @@ function! MyFoldText()
     let txt = '+ ' . comment
     return txt
 endfunction
+
 set foldtext=MyFoldText()
-" 1}}}
+
 " F1-F12 {{{1
 nnoremap    U       <C-R>
 nnoremap    <F12>   :make<CR>
@@ -280,89 +273,11 @@ nnoremap    <F2>    <C-W>w
 inoremap    <F2>    <ESC><C-W>w
 nnoremap    <F1>    :hide<CR>
 inoremap    <F1>    <ESC>:hide<CR>
+"nnoremap    <F1>    :echohl WarningMsg <Bar> :echomsg "Przesunąć dłoń w lewo?" <Bar> :echohl None<CR>
+"inoremap    <F1>    <ESC>:echohl WarningMsg <Bar> :echomsg "Przesunąć dłoń w lewo?" <Bar> :echohl None<CR>
 " 1}}}
 
-runtime macros/justify.vim
 
-let g:explDetailedList=1
-let g:explDateFormat="%m %d %Y %H:%M"
-let g:manpageview_winopen="reuse"
-let g:html_use_css=1
-let g:use_xhtml=1
-let c_no_comment_fold=1
-let c_gnu=1
-let c_no_if0_fold=1
-
-" vim7 tabs
-if version >= 700
-    noremap L :tabn<CR>
-    noremap H :tabp<CR>
-endif
-
-" Fine grained undo
-inoremap <Space> <Space><C-g>u
-inoremap <Tab> <Tab><C-g>u
-inoremap <Return> <Return><C-g>u
-
-" provide hjkl movements in Insert mode via the <Alt> modifier key
-inoremap <C-h> <C-o>h
-inoremap <C-j> <C-o>j
-inoremap <C-k> <C-o>k
-inoremap <C-l> <C-o>l
-
-" Also b and w normal commands
-inoremap <A-b> <C-o>b
-inoremap <A-w> <C-o>w
-" provide hjkl movements in Command-line mode via the <Alt> modifier key
-cnoremap <C-h> <Left>
-cnoremap <C-j> <Down>
-cnoremap <C-k> <Up>
-cnoremap <C-l> <Right>
-
-" Also b and w normal commands
-cnoremap <expr> <A-b> &cedit. 'b' .'<C-c>'
-cnoremap <expr> <A-w> &cedit. 'w' .'<C-c>'
-
-" Insert the rest of the line below the cursor.
-" Mnemonic: Elevate characters from below line
-inoremap <A-e> 
-    \<Esc>
-    \jl
-        \y$
-    \hk
-        \p
-        \a
-
-" Insert the rest of the line above the cursor.
-" Mnemonic:  Y depicts a funnel, through which the above line's characters pour onto the current line.
-inoremap <A-y> 
-    \<Esc>
-    \kl
-        \y$
-    \hj
-        \p
-        \a
-
-" ggvG
-nnoremap <Leader>'wc ggvG$"+y
-nnoremap <Leader>'wC ggvG$"*y
-nnoremap <Leader>'wv ggvG$"+p
-nnoremap <Leader>'wV ggvG$"*p
-
-" other.vim
-map <Leader>'o <Plug>OtherFile
-
-" %s <C-R>", <C-R><C-W> {{{1
-nnoremap <Leader>'z :%s/\<<C-R><C-W>\>/
-inoremap <Leader>'z <ESC>:%s/\<<C-R><C-W>\>/
-
-nnoremap <silent> <Leader>'Z :call G_BeginSubstituteCommandFromVisualMode()<CR>v
-inoremap <silent> <Leader>'Z <ESC>:call G_BeginSubstituteCommandFromVisualMode()<CR>v
-vnoremap <silent> <Leader>'Z <ESC>:call G_BeginSubstituteCommandFromVisualMode()<CR>vgv
-function! G_BeginSubstituteCommandFromVisualMode()
-    vnoremap <buffer> y y<CR>:unmap <buffer> y<CR>:%s/<C-R>"/
-endfunction
-" 1}}}
 " function! G_WriteBackup {{{1
 nnoremap <Leader>'b :call G_WriteBackup()<CR>
 function! G_WriteBackup()
@@ -379,62 +294,62 @@ function! G_WriteBackup()
 endfun
 " 1}}}
 function! G_NoUTFPolishLeters() " {{{1
-    :%s/Ą/A/ge
-    :%s/ą/a/ge
-    :%s/Ć/C/ge
-    :%s/ć/c/ge
-    :%s/Ę/E/ge
-    :%s/ę/e/ge
-    :%s/Ł/L/ge
-    :%s/ł/l/ge
-    :%s/Ń/N/ge
-    :%s/ń/n/ge
-    :%s/Ó/O/ge
-    :%s/ó/o/ge
-    :%s/Ś/S/ge
-    :%s/ś/s/ge
-    :%s/Ź/Z/ge
-    :%s/ź/z/ge
-    :%s/Ż/Z/ge
-    :%s/ż/z/ge
+    :%s/Ä/A/ge
+    :%s/Ä/a/ge
+    :%s/Ä/C/ge
+    :%s/Ä/c/ge
+    :%s/Ä/E/ge
+    :%s/Ä/e/ge
+    :%s/Å/L/ge
+    :%s/Å/l/ge
+    :%s/Å/N/ge
+    :%s/Å/n/ge
+    :%s/Ã/O/ge
+    :%s/Ã³/o/ge
+    :%s/Å/S/ge
+    :%s/Å/s/ge
+    :%s/Å¹/Z/ge
+    :%s/Åº/z/ge
+    :%s/Å»/Z/ge
+    :%s/Å¼/z/ge
 endfunction " 1}}}
 function! G_NoISOPolishLeters() " {{{1
-    :%s/�/A/ge
-    :%s/�/a/ge
-    :%s/�/C/ge
-    :%s/�/c/ge
-    :%s/�/E/ge
-    :%s/�/e/ge
-    :%s/�/L/ge
-    :%s/�/l/ge
-    :%s/�/N/ge
-    :%s/�/n/ge
-    :%s/�/O/ge
-    :%s/�/o/ge
-    :%s/�/S/ge
-    :%s/�/s/ge
-    :%s/�/Z/ge
-    :%s/�/z/ge
-    :%s/�/Z/ge
-    :%s/�/z/ge
+    :%s/¡/A/ge
+    :%s/±/a/ge
+    :%s/Æ/C/ge
+    :%s/æ/c/ge
+    :%s/Ê/E/ge
+    :%s/ê/e/ge
+    :%s/£/L/ge
+    :%s/³/l/ge
+    :%s/Ñ/N/ge
+    :%s/ñ/n/ge
+    :%s/Ó/O/ge
+    :%s/ó/o/ge
+    :%s/¦/S/ge
+    :%s/¶/s/ge
+    :%s/¬/Z/ge
+    :%s/¼/z/ge
+    :%s/¯/Z/ge
+    :%s/¿/z/ge
 endfunction " 1}}}
 function! G_off_FixUtf8() " {{{1
     " e,
-    :%s/ę/e/ge
+    :%s/Ä/e/ge
     " \l
-    :%s/ł/l/ge
+    :%s/Å/l/ge
     " \L
-    :%s/Ł/L/ge
+    :%s/Å/L/ge
     " o'
-    :%s/ó/o/ge
+    :%s/Ã³/o/ge
     "z' (rz)
-    :%s/ż/z/ge
+    :%s/Å¼/z/ge
     " s'
-    :%s/ś/s/ge
+    :%s/Å/s/ge
     " c'
-    :%s/ć/c/ge
+    :%s/Ä/c/ge
     " a,
-    :%s/ą/a/ge
+    :%s/Ä/a/ge
     "
     :%s///ge
     "
@@ -514,7 +429,137 @@ endfunction
 " 1}}}
 
 
-" Shorthand notation; fetches https://github.com/junegunn/vim-easy-align
+" vim7 tabs
+if version >= 700
+    noremap L :tabn<CR>
+    noremap H :tabp<CR>
+endif
+
+" SHIFT-INSERT {{{1
+if 0 && has("gui_running")
+    set mousehide
+    map <S-Insert> <MiddleMouse>
+    map! <S-Insert> <MiddleMouse>
+else
+    map <S-Insert> <RightMouse>
+    map! <S-Insert> <RightMouse>
+endif " 1}}}
+
+" Fine grained undo
+inoremap <Space> <Space><C-g>u
+inoremap <Tab> <Tab><C-g>u
+inoremap <Return> <Return><C-g>u
+
+:nnoremap <Leader>zz :let &scrolloff=999-&scrolloff<CR>
+
+" provide hjkl movements in Insert mode via the <Alt> modifier key
+inoremap <C-h> <C-o>h
+inoremap <C-j> <C-o>j
+inoremap <C-k> <C-o>k
+inoremap <C-l> <C-o>l
+
+" Also b and w normal commands
+inoremap <A-b> <C-o>b 
+inoremap <A-w> <C-o>w
+
+" provide hjkl movements in Command-line mode via the <Alt> modifier key
+cnoremap <C-h> <Left>
+cnoremap <C-j> <Down>
+cnoremap <C-k> <Up>
+cnoremap <C-l> <Right>
+
+" Also b and w normal commands
+cnoremap <expr> <A-b> &cedit. 'b' .'<C-c>'
+cnoremap <expr> <A-w> &cedit. 'w' .'<C-c>'
+
+" Insert the rest of the line below the cursor.
+" Mnemonic: Elevate characters from below line
+inoremap <A-e> 
+    \<Esc>
+    \jl
+        \y$
+    \hk
+        \p
+        \a
+
+" Insert the rest of the line above the cursor.
+" Mnemonic:  Y depicts a funnel, through which the above line's characters pour onto the current line.
+inoremap <A-y> 
+    \<Esc>
+    \kl
+        \y$
+    \hj
+        \p
+        \a
+
+" ggvG
+nnoremap <Leader>'wc ggvG$"+y
+nnoremap <Leader>'wC ggvG$"*y
+nnoremap <Leader>'wv ggvG$"+p
+nnoremap <Leader>'wV ggvG$"*p
+
+" other.vim
+map <Leader>'o <Plug>OtherFile
+
+" %s <C-R>", <C-R><C-W> {{{1
+nnoremap <Leader>'z :%s/\<<C-R><C-W>\>/
+inoremap <Leader>'z <ESC>:%s/\<<C-R><C-W>\>/
+nnoremap <Space><Space> /\<<C-r>=expand("<cword>")<CR>\>
+
+
+nnoremap <silent> <Leader>'Z :call G_BeginSubstituteCommandFromVisualMode()<CR>v
+inoremap <silent> <Leader>'Z <ESC>:call G_BeginSubstituteCommandFromVisualMode()<CR>v
+vnoremap <silent> <Leader>'Z <ESC>:call G_BeginSubstituteCommandFromVisualMode()<CR>vgv
+function! G_BeginSubstituteCommandFromVisualMode()
+    vnoremap <buffer> y y<CR>:unmap <buffer> y<CR>:%s/<C-R>"/
+endfunction
+" 1}}}
+
+" [ac]8 Vim Plugins
+"
+" Justify Macro
+"
+runtime macros/justify.vim
+
+"
+" Settings of plugins
+"
+let g:explDetailedList=1
+let g:explDateFormat="%m %d %Y %H:%M"
+let g:manpageview_winopen="reuse"
+let g:html_use_css=1
+let g:use_xhtml=1
+let c_no_comment_fold=1
+let c_gnu=1
+let c_no_if0_fold=1
+
+"
+" Quck-fix
+"
+nmap ]q :cnext<cr>
+nmap ]Q :clast<cr>
+nmap [q :cprev<cr>
+nmap [Q :cfirst<cr>
+
+" Run a given vim command on the results of fuzzy selecting from a given shell
+" command. See usage below.
+function! ZshSelectCommand(choice_command, zshselect_args, vim_command)
+  try
+    let selection = system(a:choice_command . " | zsh-select " . a:zshselect_args)
+  catch /Vim:Interrupt/
+    " Swallow the ^C so that the redraw below happens; otherwise there will be
+    " leftovers from zshselect on the screen
+    redraw!
+    return
+  endtry
+  redraw!
+  exec a:vim_command . " " . selection
+endfunction
+
+" Find all files in all non-dot directories starting in the working directory.
+" Fuzzy select one of those. Open the selected file with :e.
+nnoremap <leader>f :call ZshSelectCommand("find * -type f 2>/dev/null", "", ":e")<cr>
+
 call plug#begin('~/.vim/plugged')
 
 " Make sure you use single quotes
@@ -525,6 +570,7 @@ Plug 'Flrnprz/plastic.vim'
 
 Plug 'junegunn/vim-github-dashboard'
 Plug 'mhinz/vim-startify'
+Plug 'mbbill/undotree'
 
 Plug 'zphere-zsh/vim-user-menu'
 Plug 'zphere-zsh/clavichord-omni-completion'
