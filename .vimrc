@@ -1,6 +1,7 @@
 set viminfo='100,<100000,s100,%,/10000
 set history=10000
 set isk+=@-@,.,:,-,+
+set report=0
 
 set completeopt+=noinsert,menuone
 inoremap <BS> <BS><C-R>=pumvisible() ? "" : "\<lt>C-N>"<CR>
@@ -10,6 +11,9 @@ if exists("*mkdir")
         silent! call mkdir($HOME."/tmp/vitmp", "p", 0700)
     endif
 endif
+
+
+hi! link WarningMsg ErrorMsg
 
 " guard for distributions lacking the 'persistent_undo' feature.
 if has('persistent_undo')
@@ -65,6 +69,7 @@ set autowriteall
 set isfname-==				" "ctrl-x f" after variable assignment
 set timeoutlen=800 ttimeoutlen=-1
 " 1}}}
+
 " AUTOCMD {{{1
 if has("autocmd")
     filetype plugin indent on
@@ -80,6 +85,7 @@ if has("autocmd")
     \ if line("'\"") > 0 && line ("'\"") <= line("$") |
     \   exe "normal g'\"" |
     \ endif
+
 "    augroup how_many_characters_yank
 "        au!
 "	au TextYankPost * call s:how_many_characters_yank()
@@ -103,6 +109,7 @@ augroup Binary
     au BufWritePost *.bin if &bin | %!xxd
     au BufWritePost *.bin set nomod | endif
 augroup END " 1}}}
+
 " 256 colors {{{1
 if &term=="xterm" || &term=="rxvt"
     set t_Co=256
@@ -129,29 +136,63 @@ endif " 1}}}
 set laststatus=2
 
 if has('statusline')
+    " Modifiable, RO, Modified, Special
+    let g:colormap = {
+                \    '...1' : [ 227, 19 ],
+                \    '.110' : [ 17, "green"],
+                \    '.100' : [ "yellow", 21 ],
+                \    '0010' : [ 220, "red"],
+                \    '0..0' : [ 122, 105 ],
+                \    '.000' : [ 0, 0 ],
+                \    '.010' : [ 0, 0 ],
+                \ }
+
     function! InsertStatuslineColor(state)
-        let g:state = a:state
+        let [ g:state, g:the_key ] = [ a:state, "" ]
+        let q = &modifiable . &ro . &modified . ( empty(&bt) ? "0" : "1" )
+        let res = filter(copy(g:colormap), "q =~ '^'.v:key.'$'")
+        let resa = filter(['...1','1000','1010','.110',
+                    \ '.100','0010','0..0','.000','.010'], "(has_key(res,v:val) &&
+                    \ empty(g:the_key)) ? !empty(extend(g:,{'the_key':v:val})) : 0")
+        let res = !empty(g:the_key) ? g:colormap[g:the_key] : [ 220, 17 ]
+        " echom "Got g:the_key: ¿" g:the_key "¿" "res: ¿¿" string(res) "¿¿"
         if a:state == 'i'
-            hi statusline ctermfg=17 ctermbg=Yellow guifg=DarkBlue guibg=Yellow
+            let res = !(!empty(res[0])+!empty(res[1])) ? [ 220, 17 ] : res
+            exe "hi" "statusline" "ctermfg=".res[1] "ctermbg=".res[0] "guifg=DarkBlue" "guibg=Yellow"
         elseif a:state == 'r'
-            hi statusline ctermfg=Yellow ctermbg=Red guifg=Yellow guibg=Gray
+            let res = !(!empty(res[0])+!empty(res[1])) ? [ "Yellow", "Red" ] : res
+            exe "hi" "statusline" "ctermfg=".res[1] "ctermbg=".res[0] "guifg=Yellow" "guibg=Gray"
         elseif a:state == 'n'
-            hi statusline ctermfg=227 cterm=bold ctermbg=Blue guifg=Gold guibg=Blue
+            let res = !(!empty(res[0])+!empty(res[1])) ? [ 227, "Blue" ] : res
+            exe "hi" "statusline" "ctermfg=".res[1] "ctermbg=".res[0] "guifg=Yellow" "guibg=Blue"
         " TODO¿
         elseif a:state == 'v'
-            hi statusline ctermfg=220 cterm=bold ctermbg=22 guifg=Gold guibg=Blue
+            let res = !(!empty(res[0])+!empty(res[1])) ? [ 220, 22 ] : res
+            exe "hi" "statusline" "ctermfg=".res[1] "ctermbg=".res[0] "guifg=Yellow" "guibg=Gray"
         elseif a:state == 'c'
-            hi statusline ctermfg=220 cterm=bold ctermbg=22 guifg=Gold guibg=Blue
-            redraw
+            let res = !(!empty(res[0])+!empty(res[1])) ? [ 220, 22 ] : res
+            exe "hi" "statusline" "ctermfg=".res[1] "ctermbg=".res[0] "guifg=Yellow" "guibg=Gray"
+            redraw!
         else
-            hi statusline ctermfg=Yellow ctermbg=Blue guifg=Yellow guibg=Blue
+            let res = !(!empty(res[0])+!empty(res[1])) ? [ 220, "Blue" ] : res
+            exe "hi" "statusline" "ctermfg=".res[1] "ctermbg=".res[0] "guifg=Yellow" "guibg=Blue"
         endif
+        " echom "Got g:the_key: ¿" g:the_key "¿" "res: ¿¿" string(res) "¿¿"
     endfunction
 
     au InsertEnter * call InsertStatuslineColor(v:insertmode)
     au InsertLeave * call InsertStatuslineColor('n')
-    au CmdwinEnter * call InsertStatuslineColor('c')
-    au CmdwinLeave * call InsertStatuslineColor('n')
+    au CmdlineEnter * call InsertStatuslineColor('c')
+    au CmdlineLeave * call InsertStatuslineColor('n')
+    au BufWinEnter * call InsertStatuslineColor('n')
+    au FileType * call InsertStatuslineColor('n')
+    au TabEnter * call InsertStatuslineColor('n')
+    au WinEnter * call InsertStatuslineColor('n')
+    au SourcePost * call InsertStatuslineColor('n')
+    au TextChangedI * call InsertStatuslineColor('i')
+    au FileAppendPost * call InsertStatuslineColor('n')
+    au FileChangedShellPost * call InsertStatuslineColor('n')
+
 
     " Initialize.
     call InsertStatuslineColor('n')
@@ -160,7 +201,7 @@ if has('statusline')
     " CALLBACK {{{2
     function SetStatusLineStyle()
         let fnsize = &columns - 70 
-        let &stl="%2*%.".fnsize."F%*%y%([%R%M]%)%{'!'[&ff=='".&ff."']}%{'$'[!&list]}%{'~'[&pm=='']}\ ¿ %2*%{strftime('%H:%M')}%* ¿ chr=0x%02B\,%03b\ %=%{SL_Options()}\ \ %l/%L¿%v\ ¿\ %=%c%V"
+        let &stl="¿ %4*%.".fnsize."F%*%y%([%R%M]%)%{'!'[&ff=='".&ff."']}%{'$'[!&list]}%{'~'[&pm=='']}\ ¿ %5*%{strftime('%H:%M')}%* ¿ chr=0x%02B\,%03b\ %=%{SL_Options()}\ \ %l/%L¿%v\ ¿\ %=%c%V"
 
         "call SetStatusLineColor()
     endfunc " 2}}}
@@ -179,7 +220,7 @@ if has('statusline')
         let opt=" "
         " autoindent
         if &fo =~ 'a' && &ai|   let opt=opt."¿FO¿"   |endif
-        if &ai|   let opt=opt."-AU¿IN"   |endif
+        if &ai|   let opt=opt."¿AUI"   |endif
         "  expandtab
         if &et|   let opt=opt." et"   |endif
         "  hlsearch
@@ -205,8 +246,14 @@ if has('statusline')
     hi User2 cterm=NONE    ctermfg=black  ctermbg=green  guifg=black  guibg=green
     " color for position
     hi User3 cterm=NONE    ctermfg=yellow ctermbg=darkmagenta guifg=yellow guibg=cyan
+    hi User4 cterm=NONE    ctermfg=white ctermbg=20 guifg=yellow guibg=darkblue
+    hi User5 cterm=NONE    ctermfg=white ctermbg=57 cterm=bold guifg=yellow guibg=darkblue
 endif  " 1}}}
+
 " SET FOLDTEXT {{{1
+"
+" MyFoldText
+"
 function! MyFoldText()
     let comment = substitute(getline(v:foldstart),"^[[:space:]]*","",1)
     let comment = substitute(comment,"{{"."{.*$","",1)
@@ -266,7 +313,6 @@ inoremap <C-l> <C-o>l
 " Also b and w normal commands
 inoremap <A-b> <C-o>b
 inoremap <A-w> <C-o>w
-
 " provide hjkl movements in Command-line mode via the <Alt> modifier key
 cnoremap <C-h> <Left>
 cnoremap <C-j> <Down>
@@ -322,9 +368,13 @@ nnoremap <Leader>'b :call G_WriteBackup()<CR>
 function! G_WriteBackup()
     let fname   = expand("%:t") . "__" . strftime("%m_%d_%Y_%H.%M.%S")
     let dirname = strftime("%m_%Y")
+    let dfullname = $HOME . "/Safe/master_backup/" . dirname
     " TODO call mkdir()
-    silent call system("mkdir -p /home/seba/Safe/master_backup/" . dirname)
-    silent exe ":w /home/seba/Safe/master_backup/" . dirname . "/" . fname
+    if !isdirectory(dfullname)
+        silent call mkdir(dfullname, "p")
+    endif
+    "silent call system("mkdir -p ")
+    silent exe ":w " . dfullname . "/" . fname
     echo "Wrote " . dirname . "/" . fname
 endfun
 " 1}}}
@@ -486,6 +536,10 @@ call plug#end()
 
 let g:zekyll_debug = 1
 let g:zekyll_messages = 1
+
+function! All_files()
+  return extend( filter(copy(v:oldfiles), "v:val !~ 'fugitive:\\|NERD_tree\\|^/tmp/\\|.git/'"), map(filter(range(1, bufnr('$')), 'buflisted(v:val)'), 'bufname(v:val)'))
+endfunction
 
 highlight Pmenu      ctermfg=3 ctermbg=4 guifg=#ff0000 guibg=#00ff00
 highlight PmenuSel   ctermfg=2 ctermbg=3 guifg=#ff0000 guibg=#00ff00
