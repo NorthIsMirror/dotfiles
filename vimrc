@@ -6,6 +6,8 @@
 " License: GPLv3
 "=============================================================================
 
+let g:spacevim_enable_ycm = 1
+
 " Note: Skip initialization for vim-tiny or vim-small.
 if 1
     let g:_spacevim_if_lua = 0
@@ -25,14 +27,12 @@ if 1
     execute 'source' fnamemodify(expand('<sfile>'), ':h').'/config/main.vim'
 endif
 
-" :Nop to easily disable multi-\n commands.
-command! -nargs=* Nop "Nothing is done here…
-highlight! NopGroup ctermbg=249 ctermfg=253
-let m = matchadd("NopGroup", '^\s*Nop .*\n\(\s*\\.*\n\)*')
-
 call dein#add('vim-add-ons/shell-omni-completion')
 call dein#add('vim-add-ons/clavichord-omni-completion')
 call dein#add('vim-add-ons/vim-user-menu')
+call dein#add('itchyny/lightline.vim')
+call dein#add('tmhedberg/matchit')
+call dein#add('d0c-s4vage/lookatme')
 
 map <F11> :!cp -vf ~/github/user-menu/plugin/vim-user-menu.vim ~/.cache/vimfiles/.cache/vimrc/.dein/plugin/vim-user-menu.vim<CR><CR>
 
@@ -85,6 +85,11 @@ set autowriteall
 set isfname-==              " "ctrl-x f" after variable assignment
 set timeoutlen=800 ttimeoutlen=-1
 
+" :Nop to easily disable multi-\n commands.
+command! -nargs=* Nop "Nothing is done here…
+highlight! NopGroup ctermbg=249 ctermfg=253
+let m = matchadd("NopGroup", '^\s*Nop .*\n\(\s*\\.*\n\)*')
+
 if has("autocmd")
     filetype plugin indent on
     autocmd BufRead *.txt setlocal tw=78
@@ -95,10 +100,11 @@ if has("autocmd")
     "autocmd FileType cpp setlocal foldmethod=syntax
     "autocmd FileType c setlocal foldmethod=syntax
     "autocmd BufRead *.log set ft=marma
+
 Nop autocmd BufReadPost *
-\ if line("'\"") > 0 && line ("'\"") <= line("$") |
-\   exe "normal g'\"" |
-\ endif
+ \ if line("'\"") > 0 && line ("'\"") <= line("$") |
+ \   exe "normal g'\"" |
+ \ endif
 
 "    augroup how_many_characters_yank
 "        au!
@@ -128,7 +134,18 @@ inoremap    <F4>    <ESC><C-W>w
 nnoremap    <F1>    :hide<CR>
 inoremap    <F1>    <ESC>:hide<CR>
 
-" function! G_WriteBackup {{{1
+" FUNCTION: G_TakeOutBuf() {{{
+" Take-out current window/buffer into its own tab :) It hides/closes the
+" current window, hence the "take-out".
+noremap <F5> <C-\><C-N>:call G_TakeOutBuf()<CR>
+func! G_TakeOutBuf()
+  let bufnr = bufnr()
+  hide
+  tabnew
+  exe "buf" bufnr
+endfunc
+" }}}
+" FUNCTION: G_WriteBackup {{{
 nnoremap <Leader>b :call G_WriteBackup()<CR>
 function! G_WriteBackup()
     let fname   = expand("%:t") . "__" . strftime("%m_%d_%Y_%H.%M.%S")
@@ -142,8 +159,9 @@ function! G_WriteBackup()
     silent exe ":w " . dfullname . "/" . fname
     echo "Wrote " . dirname . "/" . fname
 endfun
-" 1}}}
-function G_ToggleMouse() " {{{1
+" }}}
+" FUNCTION: G_ToggleMouse() "{{{
+function G_ToggleMouse()
     if &mouse=='a'
         set mouse=
         echo "Mouse off"
@@ -151,7 +169,7 @@ function G_ToggleMouse() " {{{1
         set mouse=a
         echo "Mouse on"
     endif
-endfunction " 1}}}
+endfunction " }}}
 
 inoremap <Space> <Space><C-g>u
 inoremap <Tab> <Tab><C-g>u
@@ -178,4 +196,12 @@ endfunction
 
 silent! unmap <C-D>
 silent! unmap <C-U>
+
+source ~/github/vim-experiments/show-args-plugin/plugin/show-args.vim
+
+set <S-Up>=[a
+set <S-Down>=[b
+set <S-Right>=[c
+set <S-Left>=[d
+
 " vim:set et sw=2
