@@ -35,7 +35,9 @@ call dein#add('vim-add-ons/vim-user-menu')
 call dein#add('itchyny/lightline.vim')
 call dein#add('tmhedberg/matchit')
 
-map <F11> :!cp -vf ~/github/user-menu/plugin/vim-user-menu.vim ~/.cache/vimfiles/.cache/vimrc/.dein/plugin/vim-user-menu.vim<CR><CR>
+nnoremap <F11> :!cp -vf ~/github/user-menu/plugin/vim-user-menu.vim ~/.cache/vimfiles/.cache/vimrc/.dein/plugin/vim-user-menu.vim<CR>:source ~/github/user-menu/plugin/vim-user-menu.vim<CR>
+nnoremap <F10> :source ~/github/user-menu/plugin/vim-user-menu.vim<CR>
+
 
 map <Leader>1 <ESC>:tabnext 1<CR>
 map <Leader>2 <ESC>:tabnext 2<CR>
@@ -140,11 +142,32 @@ inoremap    <F1>    <ESC>:hide<CR>
 " current window, hence the "take-out".
 noremap <F5> <C-\><C-N>:call G_TakeOutBuf()<CR>
 func! G_TakeOutBuf()
+  set bh=hide
+  " The •BUFFER• to take-out.
   let bufnr = bufnr()
-  hide
+  " The •OLD-WINDOW• found?
+  let found_wid = win_getid()
+  if !found_wid
+      7Echos! %0ERROR:%1 Couldn't find the current window-ID, aborting…
+      return
+  endif
+
+  " The actions: a) new tab, b) load the •BUFFER•, c) hide the •OLD-WINDOW•
   tabnew
+  let new_winid = win_getid()
   exe "buf" bufnr
+  if !win_gotoid(found_wid)
+      8Echos! %1WARNING: Closing of the old window unsuccessful.
+      return
+  endif
+  hide
+  if !win_gotoid(new_winid)
+      8Echos! %1WARNING: Couldn't switch to the new tab \(afer successfully closing the old window).
+      return
+  endif
+  7Echos! %bluemsg.The buffer %0.l:bufnr%bluemsg. has been moved to a «NEW» tab.
 endfunc
+" }}}
 " }}}
 " FUNCTION: G_WriteBackup {{{
 nnoremap <Leader>b :call G_WriteBackup()<CR>
