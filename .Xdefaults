@@ -1,0 +1,142 @@
+Xft.dpi:                          96
+Xft.antialias:                    true
+Xft.hinting:                      true
+Xft.hintstyle:                    hintfull
+Xft.rgba:                         rgb
+
+URxvt.geometry:                   87x20
+URxvt.internalBorder:             15
+URxvt.scrollBar:                  true
+URxvt.saveLines:                  300000
+URxvt.scrollWithBuffer:           true
+URxvt.borderless:                 false
+URxvt.background:                 #000000
+URxvt.cursorColor:                #C0C0F0
+URxvt.cursorBlink:                1
+URxvt.allow_bold:                 true
+URxvt.lineSpace:                  1
+URxvt.letterspace:                0
+URxvt.transparent:                true
+URxvt.shading:                    0
+URxvt.depth:                      32
+
+URxvt.iso14755:                   False
+URxvt.iso14755_52:                False
+
+URxvt.perl-ext-common:            default,matcher,config-reload
+URxvt.url-launcher:               xdg-open
+URxvt.matcher.button:             1
+URxvt.matcher.rend.0:             Uline Bold
+
+URxvt.clipboard.autocopy:         true
+URxvt.keysym.Control-1:           command:\033c
+URxvt.keysym.Control-Shift-Left:	string:\033[1;6D
+URxvt.keysym.Control-Shift-Right:	string:\033[1;6C
+URxvt.keysym.Shift-Up:            builtin-string:
+URxvt.keysym.Shift-Down:          builtin-string:
+! URxvt.keysym.Shift-Up:          command:\033]720;1\007
+! URxvt.keysym.Shift-Down:        command:\033]721;1\007
+! URxvt.keysym.Control-Up:        \033[1;5A
+! URxvt.keysym.Control-Down:      \033[1;5B
+! URxvt.keysym.Control-Right:     \033[1;5C
+! URxvt.keysym.Control-Left:      \033[1;5D
+URxvt.keysym.Control-Up:          builtin-string:
+URxvt.keysym.Control-Left:        builtin-string:
+URxvt.keysym.Control-Right:       builtin-string:
+URxvt.keysym.Control-Down:        builtin-string:
+URxvt.underlineURLs:              true
+
+URxvt.font:                       xft:Iosevka:size=17,Iosevka Medium:style=Medium
+URxvt.boldFont:                   xft:Iosevka:size=17,style=Bold
+
+URxvt.keysym.M-C-0:command:\033]710;xft:Iosevka:size=17,Iosevka Medium:style=Medium\007\033]711;xft:Iosevka:style=Bold:size=17\007
+URxvt.keysym.M-C-1:command:\033]710;xft:Iosevka:size=18,Iosevka Medium:style=Medium\007\033]711;xft:Iosevka:style=Bold:size=18\007
+URxvt.keysym.M-C-2:command:\033]710;xft:Iosevka:size=19,Iosevka Medium:style=Medium\007\033]711;xft:Iosevka:style=Bold:size=19\007
+URxvt.keysym.M-C-3:command:\033]710;xft:Iosevka:size=22,Iosevka Medium:style=Medium\007\033]711;xft:Iosevka:style=Bold:size=22\007
+URxvt.keysym.M-C-4:command:\033]710;xft:Iosevka:size=23,Iosevka Medium:style=Medium\007\033]711;xft:Iosevka:style=Bold:size=23\007
+URxvt.keysym.M-C-5:command:\033]710;xft:Iosevka:size=25,Iosevka Medium:style=Medium\007\033]711;xft:Iosevka:style=Bold:size=25\007
+URxvt.keysym.M-C-6:command:\033]710;xft:Iosevka:size=26,Iosevka Medium:style=Medium\007\033]711;xft:Iosevka:style=Bold:size=26\007
+URxvt.keysym.M-C-7:command:\033]710;xft:Iosevka:size=30,Iosevka Medium:style=Medium\007\033]711;xft:Iosevka:style=Bold:size=30\007
+URxvt.keysym.M-C-8:command:\033]710;xft:Iosevka:size=35,Iosevka Medium:style=Medium\007\033]711;xft:Iosevka:style=Bold:size=35\007
+URxvt.keysym.M-C-9:command:\033]710;xft:Iosevka:size=37,Iosevka Medium:style=Medium\007\033]711;xft:Iosevka:style=Bold:size=37\007
+
+!*color1:	#f16878
+!*color9:	#f16878
+
+!*color2:	#59ed10
+!*color10:	#59ed10
+!
+!*color3:	#6e75ee
+!*color11:	#6e75ee
+
+*color4:	#438ee4
+*color12:	#438ee4
+
+!*color5:	#ba60eb
+!*color13:	#ba60eb
+!
+!*color6:	#10a9a9
+!*color14:	#10a9a9
+!
+!*color7:         #c9c9c9
+!*color15:        #fbfbfb
+
+XTerm.vt100.font: xft:Iosevka:size=22,Iosevka Medium:style=Medium
+XTerm.vt100.boldFont: xft:Iosevka:size=22,style=Bold 
+
+#define S_base03        #002b36
+#define S_base02        #073642
+#define S_base01        #586e75
+#define S_base00        #657b83
+#define S_base0         #839496
+#define S_base1         #93a1a1
+#define S_base2         #eee8d5
+#define S_base3         #fdf6e3
+#define S_yellow        #b58900
+#define S_orange        #cb4b16
+#define S_red           #dc322f
+#define S_magenta       #d33682
+#define S_violet        #6c71c4
+#define S_blue          #268bd2
+#define S_cyan          #2aa198
+#define S_green         #859900
+
+*background:            S_base03
+*foreground:            S_base00
+*fading:                40
+*fadeColor:             S_base03
+*cursorColor:           S_base1
+*pointerColorBackground:S_base01
+*pointerColorForeground:S_base1
+
+!! black dark/light
+*color0:                S_base02
+*color8:                S_base03
+
+!! red dark/light
+*color1:                S_red
+*color9:                S_orange
+
+!! green dark/light
+*color2:                S_green
+*color10:               S_base01
+
+!! yellow dark/light
+*color3:                S_yellow
+*color11:               S_base00
+
+!! blue dark/light
+*color4:                S_blue
+*color12:               S_base0
+
+!! magenta dark/light
+*color5:                S_magenta
+*color13:               S_violet
+
+!! cyan dark/light
+*color6:                S_cyan
+*color14:               S_base1
+
+!! white dark/light
+*color7:                S_base2
+*color15:               S_base3
