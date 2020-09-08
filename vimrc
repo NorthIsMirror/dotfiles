@@ -6,8 +6,6 @@
 " License: GPLv3
 "=============================================================================
 
-let g:spacevim_enable_ycm = 1
-
 " Note: Skip initialization for vim-tiny or vim-small.
 if 1
     let g:_spacevim_if_lua = 0
@@ -27,12 +25,15 @@ if 1
     execute 'source' fnamemodify(expand('<sfile>'), ':h').'/config/main.vim'
 endif
 
+let &t_SI.="\e[5 q" "SI = INSERT mode
+let &t_SR.="\e[4 q" "SR = REPLACE mode
+let &t_EI.="\e[1 q" "EI = NORMAL mode (ELSE)
+
 call dein#add('vim-add-ons/shell-omni-completion')
 call dein#add('vim-add-ons/clavichord-omni-completion')
 call dein#add('vim-add-ons/vim-user-menu')
 call dein#add('itchyny/lightline.vim')
 call dein#add('tmhedberg/matchit')
-call dein#add('d0c-s4vage/lookatme')
 
 map <F11> :!cp -vf ~/github/user-menu/plugin/vim-user-menu.vim ~/.cache/vimfiles/.cache/vimrc/.dein/plugin/vim-user-menu.vim<CR><CR>
 
@@ -170,12 +171,18 @@ function G_ToggleMouse()
         echo "Mouse on"
     endif
 endfunction " }}}
+" FUNCTION: All_files() {{{
+function! All_files()
+  return extend( filter(copy(v:oldfiles), "v:val !~ 'fugitive:\\|NERD_tree\\|^/tmp/\\|.git/'"), map(filter(range(1, bufnr('$')), 'buflisted(v:val)'), 'bufname(v:val)'))
+endfunction
+" }}}
 
 inoremap <Space> <Space><C-g>u
 inoremap <Tab> <Tab><C-g>u
 inoremap <Return> <Return><C-g>u
 
-:nnoremap <Leader>zz :let &scrolloff=999-&scrolloff<CR>
+nnoremap <Leader>zz :let &scrolloff=999-&scrolloff<CR>
+nnoremap <Leader>zZ :let &scrolloff=0<CR>
 
 cnoremap <C-h> <Left>
 cnoremap <C-j> <Down>
@@ -190,10 +197,6 @@ nmap ]Q :clast<cr>
 nmap [q :cprev<cr>
 nmap [Q :cfirst<cr>
 
-function! All_files()
-  return extend( filter(copy(v:oldfiles), "v:val !~ 'fugitive:\\|NERD_tree\\|^/tmp/\\|.git/'"), map(filter(range(1, bufnr('$')), 'buflisted(v:val)'), 'bufname(v:val)'))
-endfunction
-
 silent! unmap <C-D>
 silent! unmap <C-U>
 
@@ -203,5 +206,9 @@ set <S-Up>=[a
 set <S-Down>=[b
 set <S-Right>=[c
 set <S-Left>=[d
+
+" Add a replace-<cword> mapping.
+nnoremap <Space>riw :%s/<C-R><C-W>/
+nnoremap <Space>rw vwhhy:%s/<C-R>"/
 
 " vim:set et sw=2
