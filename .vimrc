@@ -391,6 +391,18 @@ function! G_FixPascalCode() " {{{1
     :%s///gie
     :%s///gie
 endfunction " 1}}}
+" function! G_InitialBackup {{{1
+function! InitialBackup()
+    w! ~/.vim/mybackup/%:t
+endfunction
+if !isdirectory($HOME."/.vim/mybackup")
+    silent! call mkdir($HOME."/.vim/mybackup","p")
+endif
+augroup MyOwn
+    au BufReadPost * silent! call InitialBackup()
+augroup END
+
+" 1}}}
 
 " vim7 tabs
 "if version >= 700
