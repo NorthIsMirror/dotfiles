@@ -120,8 +120,12 @@ if &t_Co > 2 || has("gui_running")
     syntax on
     set hlsearch
     "colorscheme slate
-    "colorscheme koehler
-    hi Special                      ctermfg=yellow guifg=Orange cterm=none gui=none
+    colorscheme koehler
+    "colorscheme morning
+    "colorscheme evening
+    "call timer_start(150, {->execute("colorscheme koehler")})
+    "call timer_start(170, {->InsertStatuslineColor("n")})
+    "hi Special                      ctermfg=yellow guifg=Orange cterm=none gui=none
 endif " 1}}}
 
  " Status line {{{1
@@ -148,29 +152,33 @@ if has('statusline')
                     \ '.100','0010','0..0','.000','.010'], "(has_key(res,v:val) &&
                     \ empty(g:the_key)) ? !empty(extend(g:,{'the_key':v:val})) : 0")
         let res = !empty(g:the_key) ? g:colormap[g:the_key] : [ 220, 17 ]
-        "echom "Got g:the_key: →" g:the_key "←" "res: →→" string(res) "←←"
+        "echom "Got g:the_key: →" g:the_key "←" "res: →→" string(res) "←← ≈≈ FOR:" q "≈≈"
         if a:state == 'i'
-            let res = !(!empty(res[0])+!empty(res[1])) ? [ 220, 17 ] : res
-            exe "hi" "statusline" "ctermfg=".res[1] "ctermbg=".res[0] "guifg=DarkBlue" "guibg=Yellow"
+            let res = !(!empty(res[0])+!empty(res[1])) ? [ 220, 17 ] : res | call extend(res, [ "DarkBlue", "Yellow" ])
         elseif a:state == 'r'
-            let res = !(!empty(res[0])+!empty(res[1])) ? [ "Yellow", "Red" ] : res
-            exe "hi" "statusline" "ctermfg=".res[1] "ctermbg=".res[0] "guifg=Yellow" "guibg=Gray"
+            let res = !(!empty(res[0])+!empty(res[1])) ? [ "Yellow", "Red" ] : res | call extend(res, [ "Yellow", "Gray" ])
         elseif a:state == 'n'
-            let res = !(!empty(res[0])+!empty(res[1])) ? [ 227, "Blue" ] : res
-            exe "hi" "statusline" "ctermfg=".res[1] "ctermbg=".res[0] "guifg=Yellow" "guibg=Blue"
+            let res = !(!empty(res[0])+!empty(res[1])) ? [ 227, "Blue" ] : res | call extend(res, [ "Yellow", "Blue" ])
         " TODO…
         elseif a:state == 'v'
-            let res = !(!empty(res[0])+!empty(res[1])) ? [ 220, 22 ] : res
-            exe "hi" "statusline" "ctermfg=".res[1] "ctermbg=".res[0] "guifg=Yellow" "guibg=Gray"
+            let res = !(!empty(res[0])+!empty(res[1])) ? [ 220, 57 ] : res | call extend(res, [ "Yellow", "Gray" ])
         elseif a:state == 'c'
-            let res = !(!empty(res[0])+!empty(res[1])) ? [ 220, 22 ] : res
-            exe "hi" "statusline" "ctermfg=".res[1] "ctermbg=".res[0] "guifg=Yellow" "guibg=Gray"
+            let res = !(!empty(res[0])+!empty(res[1])) ? [ 220, 57 ] : res | call extend(res, [ "Yellow", "Gray" ])
+            "let m = execute("hi statusline")
+            "echom "Before the set of the hl group:" m
             redraw
         else
-            let res = !(!empty(res[0])+!empty(res[1])) ? [ 220, "Blue" ] : res
-            exe "hi" "statusline" "ctermfg=".res[1] "ctermbg=".res[0] "guifg=Yellow" "guibg=Blue"
+            let res = !(!empty(res[0])+!empty(res[1])) ? [ 220, "Blue" ] : res | call extend(res, [ "Yellow", "Blue" ])
         endif
+        let [adda, addb] = ["cterm=", "gui="]
+        let inv_reverse= get(g:, "inv_reverse", 0)
+        if !inv_reverse
+            let [adda, addb] = ["cterm=reverse,bold", "gui=reverse,bold"]
+        endif
+        exe "hi!" "statusline" adda "ctermfg=".res[1] "ctermbg=".res[0] addb "guifg=".res[3] "guibg=".res[2]
         "echom "Got g:the_key: →" g:the_key "←" "res: →→" string(res) "←←"
+        "let m = execute("hi statusline")
+        "echom "After the set (2) of the hl group:" m
     endfunction
 
     au InsertEnter * call InsertStatuslineColor(v:insertmode)
@@ -181,6 +189,7 @@ if has('statusline')
     au WinEnter * call InsertStatuslineColor('n')
     au FileAppendPost * call InsertStatuslineColor('n')
     au FileChangedShellPost * call InsertStatuslineColor('n')
+    au Syntax * call InsertStatuslineColor('n')
 
 
     " Initialize.
@@ -497,6 +506,23 @@ let g:zekyll_messages = 1
 function! All_files()
   return extend( filter(copy(v:oldfiles), "v:val !~ 'fugitive:\\|NERD_tree\\|^/tmp/\\|.git/'"), map(filter(range(1, bufnr('$')), 'buflisted(v:val)'), 'bufname(v:val)'))
 endfunction
+
+nnoremap <ESC>1 :tabnext 1<CR>
+inoremap <ESC>1 <C-O>:tabnext 1<CR>
+nnoremap <ESC>2 :tabnext 2<CR>
+inoremap <ESC>2 <C-O>:tabnext 2<CR>
+nnoremap <ESC>3 :tabnext 3<CR>
+inoremap <ESC>3 <C-O>:tabnext 3<CR>
+nnoremap <ESC>4 :tabnext 4<CR>
+inoremap <ESC>4 <C-O>:tabnext 4<CR>
+nnoremap <ESC>5 :tabnext 5<CR>
+inoremap <ESC>5 <C-O>:tabnext 5<CR>
+nnoremap <ESC>6 :tabnext 6<CR>
+inoremap <ESC>6 <C-O>:tabnext 6<CR>
+nnoremap <ESC>7 :tabnext 7<CR>
+inoremap <ESC>7 <C-O>:tabnext 7<CR>
+nnoremap <ESC>8 :tabnext 8<CR>
+inoremap <ESC>8 <C-O>:tabnext 8<CR>
 
 highlight Pmenu      ctermfg=3 ctermbg=4 guifg=#ff0000 guibg=#00ff00
 highlight PmenuSel   ctermfg=2 ctermbg=3 guifg=#ff0000 guibg=#00ff00
