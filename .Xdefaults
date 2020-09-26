@@ -10,6 +10,7 @@ URxvt.scrollBar:                  true
 URxvt.saveLines:                  300000
 URxvt.scrollWithBuffer:           true
 URxvt.borderless:                 false
+URxvt.foreground:                 #c0c0c0 
 URxvt.background:                 #000000
 URxvt.cursorColor:                #C0C0F0
 URxvt.cursorBlink:                1

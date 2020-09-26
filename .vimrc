@@ -29,7 +29,7 @@ set undolevels=10000
 
 
 " OPTIONS {{{1
-set directory=$HOME/.vim/swapfiles//
+set directory=$HOME/.vim/swapfiles
 set foldopen=mark,percent,quickfix,search,tag,undo
 
 if v:lang =~ "utf8$" || v:lang =~ "UTF-8$"
@@ -178,11 +178,7 @@ if has('statusline')
     au CmdlineEnter * call InsertStatuslineColor('c')
     au CmdlineLeave * call InsertStatuslineColor('n')
     au BufWinEnter * call InsertStatuslineColor('n')
-    au FileType * call InsertStatuslineColor('n')
-    au TabEnter * call InsertStatuslineColor('n')
     au WinEnter * call InsertStatuslineColor('n')
-    au SourcePost * call InsertStatuslineColor('n')
-    au TextChangedI * call InsertStatuslineColor('i')
     au FileAppendPost * call InsertStatuslineColor('n')
     au FileChangedShellPost * call InsertStatuslineColor('n')
 
@@ -279,7 +275,7 @@ inoremap    <F1>    <ESC>:hide<CR>
 
 
 " function! G_WriteBackup {{{1
-nnoremap <Leader>'b :call G_WriteBackup()<CR>
+nnoremap <Leader>b :call G_WriteBackup()<CR>
 function! G_WriteBackup()
     let fname   = expand("%:t") . "__" . strftime("%m_%d_%Y_%H.%M.%S")
     let dirname = strftime("%m_%Y")
@@ -386,54 +382,12 @@ function! G_FixPascalCode() " {{{1
     :%s///gie
     :%s///gie
 endfunction " 1}}}
-" ILIST {{{1
-nnoremap <Leader>'fk :call G_UnderFilterOccurences()<CR>
-nnoremap <Leader>'fp :call G_PromptFilterOccurences()<CR>
-
-function! G_UnderFilterOccurences()
-    let v:errmsg = ""
-    exe "normal [I"
-    if v:errmsg != ""
-        return
-    endif
-    let nr = input("Wybierz: ")
-    if nr == ""
-        return
-    endif
-    let v:errmsg = ""
-    exe "silent! normal " . nr . "[\t"
-    if v:errmsg != ""
-        echohl WarningMsg | echomsg "Nie bylo takiego numeru"  | echohl None
-    endif
-endfunction!
-function! G_PromptFilterOccurences()
-    let pattern = input("Czego szukac: ")
-    if pattern == ""
-        return
-    endif
-    let v:errmsg = ""
-    exe "ilist " . pattern
-    if v:errmsg != ""
-        return
-    endif
-    let nr = input("Wybierz: ")
-    if nr == ""
-        return
-    endif
-    let v:errmsg = ""
-    exe "silent! ijump " . nr . pattern
-    if v:errmsg != ""
-        echohl WarningMsg | echomsg "Nie bylo takiego numeru"  | echohl None
-    endif
-endfunction
-" 1}}}
-
 
 " vim7 tabs
-if version >= 700
-    noremap L :tabn<CR>
-    noremap H :tabp<CR>
-endif
+"if version >= 700
+"    noremap L :tabn<CR>
+"    noremap H :tabp<CR>
+"endif
 
 " SHIFT-INSERT {{{1
 if 0 && has("gui_running")
@@ -451,68 +405,53 @@ inoremap <Tab> <Tab><C-g>u
 inoremap <Return> <Return><C-g>u
 
 :nnoremap <Leader>zz :let &scrolloff=999-&scrolloff<CR>
-
-" provide hjkl movements in Insert mode via the <Alt> modifier key
-inoremap <C-h> <C-o>h
-inoremap <C-j> <C-o>j
-inoremap <C-k> <C-o>k
-inoremap <C-l> <C-o>l
+:nnoremap <Leader>zZ :let &scrolloff=0<CR>
 
 " Also b and w normal commands
 inoremap <A-b> <C-o>b 
 inoremap <A-w> <C-o>w
 
 " provide hjkl movements in Command-line mode via the <Alt> modifier key
-cnoremap <C-h> <Left>
-cnoremap <C-j> <Down>
-cnoremap <C-k> <Up>
-cnoremap <C-l> <Right>
+"cnoremap <C-h> <Left>
+"cnoremap <C-j> <Down>
+"cnoremap <C-k> <Up>
+"cnoremap <C-l> <Right>
 
 " Also b and w normal commands
 cnoremap <expr> <A-b> &cedit. 'b' .'<C-c>'
-cnoremap <expr> <A-w> &cedit. 'w' .'<C-c>'
+"cnoremap <expr> <A-w> &cedit. 'w' .'<C-c>'
 
 " Insert the rest of the line below the cursor.
 " Mnemonic: Elevate characters from below line
-inoremap <A-e> 
-    \<Esc>
-    \jl
-        \y$
-    \hk
-        \p
-        \a
-
-" Insert the rest of the line above the cursor.
-" Mnemonic:  Y depicts a funnel, through which the above line's characters pour onto the current line.
-inoremap <A-y> 
-    \<Esc>
-    \kl
-        \y$
-    \hj
-        \p
-        \a
-
+"inoremap <A-e> 
+"    \<Esc>
+"    \jl
+"        \y$
+"    \hk
+"        \p
+"        \a
+"
+"" Insert the rest of the line above the cursor.
+"" Mnemonic:  Y depicts a funnel, through which the above line's characters pour onto the current line.
+"inoremap <A-y> 
+"    \<Esc>
+"    \kl
+"        \y$
+"    \hj
+"        \p
+"        \a
+"
 " ggvG
-nnoremap <Leader>'wc ggvG$"+y
-nnoremap <Leader>'wC ggvG$"*y
-nnoremap <Leader>'wv ggvG$"+p
-nnoremap <Leader>'wV ggvG$"*p
+"nnoremap <Leader>wc ggvG$"+y
+"nnoremap <Leader>wC ggvG$"*y
+"nnoremap <Leader>wv ggvG$"+p
+"nnoremap <Leader>wV ggvG$"*p
 
 " other.vim
-map <Leader>'o <Plug>OtherFile
+"map <Leader>o <Plug>OtherFile
 
 " %s <C-R>", <C-R><C-W> {{{1
-nnoremap <Leader>'z :%s/\<<C-R><C-W>\>/
-inoremap <Leader>'z <ESC>:%s/\<<C-R><C-W>\>/
-nnoremap <Space><Space> /\<<C-r>=expand("<cword>")<CR>\>
-
-
-nnoremap <silent> <Leader>'Z :call G_BeginSubstituteCommandFromVisualMode()<CR>v
-inoremap <silent> <Leader>'Z <ESC>:call G_BeginSubstituteCommandFromVisualMode()<CR>v
-vnoremap <silent> <Leader>'Z <ESC>:call G_BeginSubstituteCommandFromVisualMode()<CR>vgv
-function! G_BeginSubstituteCommandFromVisualMode()
-    vnoremap <buffer> y y<CR>:unmap <buffer> y<CR>:%s/<C-R>"/
-endfunction
+"nnoremap <Space><Space> /\<<C-r>=expand("<cword>")<CR>\>
 " 1}}}
 
 " [ac]8 Vim Plugins
@@ -530,47 +469,19 @@ let g:manpageview_winopen="reuse"
 let g:html_use_css=1
 let g:use_xhtml=1
 let c_no_comment_fold=1
-let c_gnu=1
+"let c_gnu=1
 let c_no_if0_fold=1
 
 "
 " Quck-fix
 "
-nmap ]q :cnext<cr>
-nmap ]Q :clast<cr>
-nmap [q :cprev<cr>
-nmap [Q :cfirst<cr>
 
-" Run a given vim command on the results of fuzzy selecting from a given shell
-" command. See usage below.
-function! ZshSelectCommand(choice_command, zshselect_args, vim_command)
-  try
-    let selection = system(a:choice_command . " | zsh-select " . a:zshselect_args)
-  catch /Vim:Interrupt/
-    " Swallow the ^C so that the redraw below happens; otherwise there will be
-    " leftovers from zshselect on the screen
-    redraw!
-    return
-  endtry
-  redraw!
-  exec a:vim_command . " " . selection
-endfunction
-
-" Find all files in all non-dot directories starting in the working directory.
-" Fuzzy select one of those. Open the selected file with :e.
-nnoremap <leader>f :call ZshSelectCommand("find * -type f 2>/dev/null", "", ":e")<cr>
 
 call plug#begin('~/.vim/plugged')
 
 " Make sure you use single quotes
 
-Plug 'Jaredgorski/Spacecamp'
-Plug 'Marfisc/Vorange'
-Plug 'Flrnprz/plastic.vim'
-
-Plug 'junegunn/vim-github-dashboard'
 Plug 'mhinz/vim-startify'
-Plug 'mbbill/undotree'
 
 Plug 'zphere-zsh/vim-user-menu'
 Plug 'zphere-zsh/clavichord-omni-completion'
@@ -591,4 +502,3 @@ highlight Pmenu      ctermfg=3 ctermbg=4 guifg=#ff0000 guibg=#00ff00
 highlight PmenuSel   ctermfg=2 ctermbg=3 guifg=#ff0000 guibg=#00ff00
 highlight PmenuSbar  ctermfg=3 ctermbg=4 guifg=#ff0000 guibg=#00ff00
 highlight PmenuThumb ctermfg=3 ctermbg=4 guifg=#ff0000 guibg=#00ff00
-call matchadd('ColorColumn', '\(\%87v\)')
