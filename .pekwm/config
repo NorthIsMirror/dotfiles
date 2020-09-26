@@ -1,0 +1,77 @@
+INCLUDE = "$_PEKWM_ETC_PATH/config_system"
+
+Files {
+    Theme = "~/.pekwm/themes/mytheme"
+}
+
+Screen {
+    Workspaces = "5"
+    WorkspacesPerRow = "3"
+    WorkspaceNames = "01;02;03;04;05;06;07;08;09"
+
+    Placement {
+        Model = "CenteredOnParent Smart MouseNotUnder"
+    }
+
+    ShowFrameList = "True"
+    ShowStatusWindow = "True"
+    ShowStatusWindowCenteredOnRoot = "False"
+    FocusNew = "True"
+    PlaceNew = "True"
+    TrimTitle = "…"
+    FullscreenAbove = "True"
+    FullscreenDetect = "True"
+    HonourRandr = "True"
+    HonourAspectRatio = "True"
+    EdgeSize = "1 1 1 1"
+    EdgeIndent = "False"
+    PixmapCacheSize = "20"
+    DoubleClickTime = "370"
+
+}
+
+Placement {
+    Model = "CenteredOnParent Smart MouseTopLeft"
+    Smart {
+        Row = "True"
+        TopToBottom = "True"
+        LeftToRight = "True"
+        OffsetX = "100"
+        OffsetY = "50"
+    }
+    UniqueNames {
+        SetUnique = "True"
+        Pre = " #"
+        Post = ""
+    }
+}
+
+Menu {
+    DisplayIcons = "True"
+    Icons = "DEFAULT" {
+        Minimum = "32x32"
+        Maximum = "32x32"
+    }
+    Select = "Motion"
+    Enter = "Motion ButtonPress"
+    Exec = "ButtonRelease"
+}
+
+CmdDialog {
+    HistoryUnique = "True"
+    HistorySize = "10240"
+    HistoryFile = "~/.pekwm/history"
+    HistorySaveInterval = "1"
+}
+
+#Harbour {
+#    OnTop = "True"
+#    MaximizeOver = "False"
+#    Placement = "Right"
+#    Orientation = "TopToBottom"
+#    Head = "0"
+#    DockApp {
+#        SideMin = "64"
+#        SideMax = "0"
+#    }
+#}
