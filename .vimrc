@@ -728,6 +728,8 @@ nnoremap <silent><nowait> <space>c  :<C-u>CocList commands<cr>
 nnoremap <silent><nowait> <space>o  :<C-u>CocList outline<cr>
 " Search workspace symbols.
 nnoremap <silent><nowait> <space>s  :<C-u>CocList -I symbols<cr>
+" Yank list
+nnoremap <silent><nowait> <space>y  :<C-u>CocList -A --normal yank<cr>
 " Search the Lists
 nnoremap <silent><nowait> <space>l  :<C-u>CocList<cr>
 " Do default action for next item.
