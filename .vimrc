@@ -16,8 +16,6 @@ if exists("*mkdir")
 endif
 
 
-hi! link WarningMsg ErrorMsg
-
 " guard for distributions lacking the 'persistent_undo' feature.
 if has('persistent_undo')
     " define a path to store persistent undo files.
@@ -131,13 +129,13 @@ if has('statusline')
     " Modifiable, RO, Modified, Special
     let g:colormap = {
                 \    '..11' : [ 227, "red" ],
-                \    '..01' : [ 227, 19 ],
+                \    '..01' : { 'c' : [ 220, 57 ], '*':[ 227, 19 ] },
                 \    '.110' : [ 17, "green"],
-                \    '.100' : [ "yellow", 21 ],
+                \    '.100' : [ "yellow", 22 ],
                 \    '0010' : [ 220, "red"],
                 \    '0..0' : [ 122, 105 ],
                 \    '.000' : [ 0, 0 ],
-                \    '.010' : [ 0, 0 ],
+                \    '.010' : { 'n':[ 220, 17 ], 'i':[ 220, 17 ], '*':[ 0, 0 ] },
                 \ }
 
     function! InsertStatuslineColor(state)
@@ -147,8 +145,9 @@ if has('statusline')
         let resa = filter(['..11','..01','1000','1010','.110',
                     \ '.100','0010','0..0','.000','.010'], "(has_key(res,v:val) &&
                     \ empty(g:the_key)) ? !empty(extend(g:,{'the_key':v:val})) : 0")
-        let res = !empty(g:the_key) ? g:colormap[g:the_key] : [ 220, 17 ]
-        "echom "Got g:the_key: →" g:the_key "←" "res: →→" string(res) "←← ≈≈ FOR:" q "≈≈"
+        let res = !empty(g:the_key) ? copy(g:colormap[g:the_key]) : [ 220, 17 ]
+        let res = type(res) == v:t_dict ? get(res,a:state,get(res,'*',[0,0])) : res
+        "echom "≈≈≈ Got g:the_key: →" g:the_key "←" "res: →→" string(res) "←← ≈≈ FOR:" q "≈≈ ˙state˙ ↔" a:state
         if a:state == 'i'
             let res = !(!empty(res[0])+!empty(res[1])) ? [ 220, 17 ] : res | call extend(res, [ "DarkBlue", "Yellow" ])
         elseif a:state == 'r'
@@ -157,24 +156,31 @@ if has('statusline')
             let res = !(!empty(res[0])+!empty(res[1])) ? [ 227, "Blue" ] : res | call extend(res, [ "Yellow", "Blue" ])
         " TODO…
         elseif a:state == 'v'
-            let res = !(!empty(res[0])+!empty(res[1])) ? [ 220, 57 ] : res | call extend(res, [ "Yellow", "Gray" ])
+            let res = !(!empty(res[0])+!empty(res[1])) ? [ 227, 57 ] : res | call extend(res, [ "Yellow", "Gray" ])
         elseif a:state == 'c'
-            let res = !(!empty(res[0])+!empty(res[1])) ? [ 220, 57 ] : res | call extend(res, [ "Yellow", "Gray" ])
             "let m = execute("hi statusline")
-            "echom "Before the set of the hl group:" m
-            redraw
+            "echom "Before the set of the hl group:" m res
+            let res = !(!empty(res[0])+!empty(res[1])) ? [ 227, 57 ] : res | call extend(res, [ "Yellow", "Gray" ])
         else
             let res = !(!empty(res[0])+!empty(res[1])) ? [ 220, "Blue" ] : res | call extend(res, [ "Yellow", "Blue" ])
         endif
-        let [adda, addb] = ["cterm=", "gui="]
+        let [adda, addb] = ["cterm=NONE", "gui=NONE"]
         let inv_reverse= get(g:, "inv_reverse", 0)
         if !inv_reverse
             let [adda, addb] = ["cterm=reverse,bold", "gui=reverse,bold"]
         endif
+        "echom "exe" "hi!" "statusline" adda "ctermfg=".res[1] "ctermbg=".res[0] addb "guifg=".res[3] "guibg=".res[2]
         exe "hi!" "statusline" adda "ctermfg=".res[1] "ctermbg=".res[0] addb "guifg=".res[3] "guibg=".res[2]
         "echom "Got g:the_key: →" g:the_key "←" "res: →→" string(res) "←←"
         "let m = execute("hi statusline")
         "echom "After the set (2) of the hl group:" m
+        let stl = &stl
+        let &stl = &stl."%v"
+        let &stl = stl
+        let &ro = &ro
+        " For coc, a workaround
+        let b:list_status = {}
+        redrawstatus!
     endfunction
 
     au InsertEnter * call InsertStatuslineColor(v:insertmode)
@@ -183,7 +189,7 @@ if has('statusline')
     au CmdlineLeave * call InsertStatuslineColor('n')
     au BufWinEnter * call InsertStatuslineColor('n')
     au WinEnter * call InsertStatuslineColor('n')
-    au FileAppendPost * call InsertStatuslineColor('n')
+    au BufWritePost,FileAppendPost * call InsertStatuslineColor('n')
     au FileChangedShellPost * call InsertStatuslineColor('n')
     au Syntax * call InsertStatuslineColor('n')
 
@@ -193,16 +199,27 @@ if has('statusline')
     hi statuslinenc ctermfg=17 ctermbg=White guifg=DarkBlue guibg=White
 
     " CALLBACK {{{2
+    function! StrChPar(string, begin, len)
+        if exists('*strcharpart')
+            return strcharpart(a:string, a:begin, a:len)
+        else
+            return matchstr(a:string, '.\{,'.a:len.'}', 0, a:begin+1)
+        endif
+    endfunction
+    function! DotsAbbr(string, limit)
+        if strchars(a:string) > a:limit
+            return StrChPar(a:string,0,a:limit-1)."…"
+        endif
+        return a:string
+    endfunction
     function SetStatusLineStyle()
         let fnsize = &columns - 70 
+        let &stl = "≈ %4*%.".fnsize."F%*%y%([%R%M]%)%{'!'[&ff=='".&ff."']}
+                    \%{'$'[!&list]}%{'~'[&pm=='']}\ %3*«%n»%*%( %5*%.25{DotsAbbr(get(b:,'coc_current_function',''),22)}%*%)
+                    \ ≈ %5*%{strftime('%H:%M')}%* ≈ chr=0x%02B\,%03b\ %=%{SL_Options()}\ \ %l/%L≈%v\ ↔\ %=%c%V %2*%p%%%* ≈"
                    " \%{'$'[!&list]}%{'~'[&pm=='']}\ %3*«%{bufnr()}»%* %7*ƒ%*≈%5*%{get(b:,'coc_current_function','')[0:25]}%*
-        let &stl="≈ %4*%.".fnsize."F%*%y%([%R%M]%)%{'!'[&ff=='".&ff."']}
-                    \%{'$'[!&list]}%{'~'[&pm=='']}\ %3*«%{bufnr()}»%* %5*%{get(b:,'coc_current_function','')[0:25]}%*
-                    \ ≈ %5*%{strftime('%H:%M')}%* ≈ chr=0x%02B\,%03b\ %=%{SL_Options()}\ \ %l/%L≈%v\ ↔\ %=%c%V"
-
-
-        "call SetStatusLineColor()
     endfunc " 2}}}
+    "let &statusline=SetStatusLineStyle()
     function SetStatusLineColor() " {{{2
         " Doesn't actually work
         if mode() == "i"
@@ -612,11 +629,14 @@ endif
 " Use <cr> to confirm completion, `<C-g>u` means break undo chain at current
 " position. Coc only does snippet and additional edit on confirm.
 " <cr> could be remapped by other vim plugin, try `:verbose imap <CR>`.
-if exists('*complete_info')
-  inoremap <expr> <cr> complete_info()["selected"] != "-1" ? "\<C-y>" : "\<C-g>u\<CR>"
-else
-  inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
-endif
+"if exists('*complete_info')
+"  inoremap <expr> <cr> complete_info()["selected"] != "-1" ? "\<C-y>" : "\<C-g>u\<CR>"
+"else
+"  inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
+"endif
+"inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm()
+"      \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
+inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
 
 " Use `[g` and `]g` to navigate diagnostics
 " Use `:CocDiagnostics` to get all diagnostics of current buffer in location list.
@@ -737,6 +757,7 @@ func! G_Colors_For_Popups_Setup() abort
     hi User4 cterm=NONE    ctermfg=white ctermbg=20 guifg=yellow guibg=darkblue
     hi User5 cterm=NONE    ctermfg=white ctermbg=57 cterm=bold guifg=yellow guibg=darkblue
     hi User7 cterm=italic ctermfg=yellow ctermbg=darkmagenta guifg=yellow guibg=cyan
+    hi! link WarningMsg ErrorMsg
 endfunc
 
 augroup colorscheme_coc_setup | au!
