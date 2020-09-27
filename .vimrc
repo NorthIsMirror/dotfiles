@@ -747,7 +747,7 @@ func! G_Colors_For_Popups_Setup() abort
     hi PmenuSel   cterm=bold ctermbg=darkgray ctermfg=220   guibg=#000000 gui=NONE
     hi PmenuSbar  cterm=NONE ctermbg=darkgray ctermfg=22    guibg=#000000 gui=none
     hi PmenuThumb cterm=NONE ctermbg=darkgray ctermfg=227   guibg=#000000 gui=none
-    hi Special    cterm=bold ctermfg=yellow   guifg=Gold    cterm=none    gui=none
+    "hi Special    cterm=bold ctermfg=yellow   guifg=Gold    cterm=none    gui=none
     " color for buffer number
     hi User1 cterm=NONE    ctermfg=red    ctermbg=yellow guifg=red    guibg=white
     " color for filename
