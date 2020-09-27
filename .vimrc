@@ -2,7 +2,11 @@ set viminfo='100,<100000,s100,%,/10000
 set history=10000
 set isk+=@-@,.,:,-,+
 set report=0
+set fo+=cr1nqj
+set incsearch
 
+
+set completeopt-=noselect,preview
 set completeopt+=noinsert,menuone,popup
 
 if exists("*mkdir")
@@ -27,7 +31,6 @@ if has('persistent_undo')
 endif
 set undolevels=10000
 
-
 " OPTIONS {{{1
 set directory=$HOME/.vim/swapfiles
 set foldopen=mark,percent,quickfix,search,tag,undo
@@ -46,7 +49,7 @@ set sw=4
 set et
 " File
 set backup
-set backupdir=$HOME/Safe/vitmp,~/tmp/vitmp
+set backupdir=$HOME/Safe/vitmp//,~/tmp/vitmp//
 set viminfo='50,\"2000			" 2000 register lines 
 set history=500
 set printoptions=left:15mm,right:15mm,top:15mm,bottom:20mm,syntax:y,paper:A4
@@ -119,13 +122,6 @@ endif " 1}}}
 if &t_Co > 2 || has("gui_running")
     syntax on
     set hlsearch
-    "colorscheme slate
-    colorscheme koehler
-    "colorscheme morning
-    "colorscheme evening
-    "call timer_start(150, {->execute("colorscheme koehler")})
-    "call timer_start(170, {->InsertStatuslineColor("n")})
-    "hi Special                      ctermfg=yellow guifg=Orange cterm=none gui=none
 endif " 1}}}
 
  " Status line {{{1
@@ -199,7 +195,11 @@ if has('statusline')
     " CALLBACK {{{2
     function SetStatusLineStyle()
         let fnsize = &columns - 70 
-        let &stl="≈ %4*%.".fnsize."F%*%y%([%R%M]%)%{'!'[&ff=='".&ff."']}%{'$'[!&list]}%{'~'[&pm=='']}\ ≈ %5*%{strftime('%H:%M')}%* ≈ chr=0x%02B\,%03b\ %=%{SL_Options()}\ \ %l/%L≈%v\ ↔\ %=%c%V"
+                   " \%{'$'[!&list]}%{'~'[&pm=='']}\ %3*«%{bufnr()}»%* %7*ƒ%*≈%5*%{get(b:,'coc_current_function','')[0:25]}%*
+        let &stl="≈ %4*%.".fnsize."F%*%y%([%R%M]%)%{'!'[&ff=='".&ff."']}
+                    \%{'$'[!&list]}%{'~'[&pm=='']}\ %3*«%{bufnr()}»%* %5*%{get(b:,'coc_current_function','')[0:25]}%*
+                    \ ≈ %5*%{strftime('%H:%M')}%* ≈ chr=0x%02B\,%03b\ %=%{SL_Options()}\ \ %l/%L≈%v\ ↔\ %=%c%V"
+
 
         "call SetStatusLineColor()
     endfunc " 2}}}
@@ -237,15 +237,6 @@ if has('statusline')
     if has('title')
         set titlestring=%t%(\ [%R%M]%)
     endif
-
-    " color for buffer number
-    hi User1 cterm=NONE    ctermfg=red    ctermbg=yellow guifg=red    guibg=white
-    " color for filename
-    hi User2 cterm=NONE    ctermfg=black  ctermbg=green  guifg=black  guibg=green
-    " color for position
-    hi User3 cterm=NONE    ctermfg=yellow ctermbg=darkmagenta guifg=yellow guibg=cyan
-    hi User4 cterm=NONE    ctermfg=white ctermbg=20 guifg=yellow guibg=darkblue
-    hi User5 cterm=NONE    ctermfg=white ctermbg=57 cterm=bold guifg=yellow guibg=darkblue
 endif  " 1}}}
 
 "
@@ -265,8 +256,9 @@ set foldtext=MyFoldText()
 nnoremap    U       <C-R>
 nnoremap    <F12>   :make<CR>
 inoremap    <F12>   <C-O>:make<CR>
-nnoremap    <F11>   :cnext<CR>
-inoremap    <F11>   <C-O>:cnext<CR>
+"nnoremap    <F11>   :cnext<CR>
+"inoremap    <F11>   <C-O>:cnext<CR>
+nnoremap <F11> :source ~/.vim/plugged/clavichord-omni-completion/plugin/clavichord-omni-completion.vim<CR>
 nnoremap    <silent> <F8> :call G_ToggleMouse()<CR>
 inoremap    <silent> <F8> <C-O>:call G_ToggleMouse()<CR>
 set pastetoggle=<F7>
@@ -493,22 +485,59 @@ let c_no_comment_fold=1
 "let c_gnu=1
 let c_no_if0_fold=1
 
-"
-" Quck-fix
-"
-
-
+let g:EasyOperator_phrase_do_mapping = 0
+let g:EasyOperator_line_do_mapping = 0
+let g:node_client_debug = 1
 call plug#begin('~/.vim/plugged')
 
 " Make sure you use single quotes
 
 Plug 'mhinz/vim-startify'
+Plug 'tpope/vim-surround'
+Plug 'neoclide/coc.nvim'
+Plug 'easymotion/vim-easymotion'
+Plug 'haya14busa/vim-easyoperator-phrase'
+Plug 'haya14busa/vim-easyoperator-line'
 
 Plug 'zphere-zsh/vim-user-menu'
-Plug 'zphere-zsh/clavichord-omni-completion'
-Plug 'zphere-zsh/shell-omni-completion'
-Plug 'zphere-zsh/shell-auto-popmenu'
+Plug 'vim-add-ons/Entirety-Grep'
+"Plug 'zphere-zsh/clavichord-omni-completion'
+"Plug 'zphere-zsh/shell-omni-completion'
+"Plug 'zphere-zsh/shell-auto-popmenu'
 call plug#end()
+
+" Configurationsymotion-hlsearch) and mappings for the plugins…
+nmap <Space>f <Plug>(easymotion-s2)
+nmap s <Plug>(easymotion-overwin-f2)
+map <Leader>L <Plug>(easymotion-lineforward)
+" Line…
+omap <Leader>l  <Plug>(easyoperator-line-select)
+nmap <Leader>l  <Plug>(easyoperator-line-select)
+xmap <Leader>l  <Plug>(easyoperator-line-select)
+nmap d<leader>l <Plug>(easyoperator-line-delete)
+nmap c<leader>l <Plug>(easyoperator-line-yank)
+" Phrase…
+omap <Leader>p  <Plug>(easyoperator-phrase-select)
+xmap <Leader>p  <Plug>(easyoperator-phrase-select)
+nmap d<Leader>p <Plug>(easyoperator-phrase-delete)
+nmap c<Leader>p <Plug>(easyoperator-phrase-yank)
+
+map <Leader>j <Plug>(easymotion-j)
+map <Leader>k <Plug>(easymotion-k)
+map <Leader>h <Plug>(easymotion-linebackward)
+map <Leader>n <Plug>(easymotion-next)
+map <Leader>P <Plug>(easymotion-prev)
+map <Leader>R <Plug>(easymotion-repeat)
+map  / <Plug>(easymotion-sn)
+omap / <Plug>(easymotion-tn)
+" Not really needed (just highlights differently)
+"map  n <Plug>(easymotion-next)
+"map  N <Plug>(easymotion-prev)
+" Bidirectional & within line 't' motion
+omap t <Plug>(easymotion-bd-tl)
+let g:EasyMotion_smartcase = 1
+let g:EasyMotion_use_upper = 1
+let g:EasyMotion_use_smartsign_us = 1
 
 "colorscheme spacecamp
 
@@ -540,3 +569,184 @@ highlight Pmenu      ctermfg=3 ctermbg=4 guifg=#ff0000 guibg=#00ff00
 highlight PmenuSel   ctermfg=2 ctermbg=3 guifg=#ff0000 guibg=#00ff00
 highlight PmenuSbar  ctermfg=3 ctermbg=4 guifg=#ff0000 guibg=#00ff00
 highlight PmenuThumb ctermfg=3 ctermbg=4 guifg=#ff0000 guibg=#00ff00
+
+" The COC configuration snippet (from GitHub):
+
+" Having longer updatetime (default is 4000 ms = 4 s) leads to noticeable
+" delays and poor user experience.
+set updatetime=300
+
+" Don't pass messages to |ins-completion-menu|.
+set shortmess+=c
+
+" Always show the signcolumn, otherwise it would shift the text each time
+" diagnostics appear/become resolved.
+if has("patch-8.1.1564")
+  " Recently vim can merge signcolumn and number column into one
+  set signcolumn=number
+else
+  set signcolumn=yes
+endif
+
+" Use tab for trigger completion with characters ahead and navigate.
+" NOTE: Use command ':verbose imap <tab>' to make sure tab is not mapped by
+" other plugin before putting this into your config.
+inoremap <silent><expr> <TAB>
+      \ pumvisible() ? "\<C-n>" :
+      \ <SID>check_back_space() ? "\<TAB>" :
+      \ coc#refresh()
+inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
+
+function! s:check_back_space() abort
+  let col = col('.') - 1
+  return !col || getline('.')[col - 1]  =~# '\s'
+endfunction
+
+" Use <c-space> to trigger completion.
+if has('nvim')
+  inoremap <silent><expr> <c-space> coc#refresh()
+else
+  inoremap <silent><expr> <c-@> coc#refresh()
+endif
+
+" Use <cr> to confirm completion, `<C-g>u` means break undo chain at current
+" position. Coc only does snippet and additional edit on confirm.
+" <cr> could be remapped by other vim plugin, try `:verbose imap <CR>`.
+if exists('*complete_info')
+  inoremap <expr> <cr> complete_info()["selected"] != "-1" ? "\<C-y>" : "\<C-g>u\<CR>"
+else
+  inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
+endif
+
+" Use `[g` and `]g` to navigate diagnostics
+" Use `:CocDiagnostics` to get all diagnostics of current buffer in location list.
+nmap <silent> [g <Plug>(coc-diagnostic-prev)
+nmap <silent> ]g <Plug>(coc-diagnostic-next)
+
+" GoTo code navigation.
+nmap <silent> gd <Plug>(coc-definition)
+nmap <silent> gy <Plug>(coc-type-definition)
+nmap <silent> gi <Plug>(coc-implementation)
+nmap <silent> gr <Plug>(coc-references)
+
+" Use K to show documentation in preview window.
+nnoremap <silent> K :call <SID>show_documentation()<CR>
+
+function! s:show_documentation()
+  if (index(['vim','help'], &filetype) >= 0)
+    execute 'h '.expand('<cword>')
+  else
+    call CocActionAsync('doHover')
+  endif
+endfunction
+
+" Highlight the symbol and its references when holding the cursor.
+autocmd CursorHold * silent call CocActionAsync('highlight')
+
+" Symbol renaming.
+nmap <leader>rn <Plug>(coc-rename)
+
+" Formatting selected code.
+xmap <leader>f  <Plug>(coc-format-selected)
+nmap <leader>f  <Plug>(coc-format-selected)
+
+augroup mygroup
+  autocmd!
+  " Setup formatexpr specified filetype(s).
+  autocmd FileType typescript,json setl formatexpr=CocAction('formatSelected')
+  " Update signature help on jump placeholder.
+  autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
+augroup end
+
+" Applying codeAction to the selected region.
+" Example: `<leader>aap` for current paragraph
+xmap <leader>a  <Plug>(coc-codeaction-selected)
+nmap <leader>a  <Plug>(coc-codeaction-selected)
+
+" Remap keys for applying codeAction to the current buffer.
+nmap <leader>ac  <Plug>(coc-codeaction)
+" Apply AutoFix to problem on the current line.
+nmap <leader>qf  <Plug>(coc-fix-current)
+
+" Map function and class text objects
+" NOTE: Requires 'textDocument.documentSymbol' support from the language server.
+xmap if <Plug>(coc-funcobj-i)
+omap if <Plug>(coc-funcobj-i)
+xmap af <Plug>(coc-funcobj-a)
+omap af <Plug>(coc-funcobj-a)
+xmap ic <Plug>(coc-classobj-i)
+omap ic <Plug>(coc-classobj-i)
+xmap ac <Plug>(coc-classobj-a)
+omap ac <Plug>(coc-classobj-a)
+
+" Use CTRL-S for selections ranges.
+" Requires 'textDocument/selectionRange' support of language server.
+nmap <silent> <C-s> <Plug>(coc-range-select)
+xmap <silent> <C-s> <Plug>(coc-range-select)
+
+" Add `:Format` command to format current buffer.
+command! -nargs=0 Format :call CocAction('format')
+
+" Add `:Fold` command to fold current buffer.
+command! -nargs=? Fold :call     CocAction('fold', <f-args>)
+
+" Add `:OR` command for organize imports of the current buffer.
+command! -nargs=0 OR   :call     CocAction('runCommand', 'editor.action.organizeImport')
+
+" Add (Neo)Vim's native statusline support.
+" NOTE: Please see `:h coc-status` for integrations with external plugins that
+" provide custom statusline: lightline.vim, vim-airline.
+
+" Mappings for CoCList
+" Show all diagnostics.
+nnoremap <silent><nowait> <space>a  :<C-u>CocList diagnostics<cr>
+" Manage extensions.
+nnoremap <silent><nowait> <space>e  :<C-u>CocList extensions<cr>
+" Show commands.
+nnoremap <silent><nowait> <space>c  :<C-u>CocList commands<cr>
+" Find symbol of current document.
+nnoremap <silent><nowait> <space>o  :<C-u>CocList outline<cr>
+" Search workspace symbols.
+nnoremap <silent><nowait> <space>s  :<C-u>CocList -I symbols<cr>
+" Search the Lists
+nnoremap <silent><nowait> <space>l  :<C-u>CocList<cr>
+" Do default action for next item.
+nnoremap <silent><nowait> <space>j  :<C-u>CocNext<CR>
+" Do default action for previous item.
+nnoremap <silent><nowait> <space>k  :<C-u>CocPrev<CR>
+" Resume latest coc list.
+nnoremap <silent><nowait> <space>p  :<C-u>CocListResume<CR>
+" Next symbol
+nnoremap <silent><nowait> <space>n  :<C-u>CocCommand document.jumpToNextSymbol<CR>
+inoremap <silent><nowait> <Esc>n  <C-o>:<C-u>CocCommand document.jumpToNextSymbol<CR>
+
+""" Customize colors
+func! G_Colors_For_Popups_Setup() abort
+    " this is an example
+    hi Pmenu      cterm=NONE ctermbg=darkgray ctermfg=white guibg=#000000 gui=NONE
+    hi PmenuSel   cterm=bold ctermbg=darkgray ctermfg=220   guibg=#000000 gui=NONE
+    hi PmenuSbar  cterm=NONE ctermbg=darkgray ctermfg=22    guibg=#000000 gui=none
+    hi PmenuThumb cterm=NONE ctermbg=darkgray ctermfg=227   guibg=#000000 gui=none
+    hi Special    cterm=bold ctermfg=yellow   guifg=Gold    cterm=none    gui=none
+    " color for buffer number
+    hi User1 cterm=NONE    ctermfg=red    ctermbg=yellow guifg=red    guibg=white
+    " color for filename
+    hi User2 cterm=NONE    ctermfg=black  ctermbg=green  guifg=black  guibg=green
+    " color for position
+    hi User3 cterm=NONE    ctermfg=yellow ctermbg=darkmagenta guifg=yellow guibg=cyan
+    hi User4 cterm=NONE    ctermfg=white ctermbg=20 guifg=yellow guibg=darkblue
+    hi User5 cterm=NONE    ctermfg=white ctermbg=57 cterm=bold guifg=yellow guibg=darkblue
+    hi User7 cterm=italic ctermfg=yellow ctermbg=darkmagenta guifg=yellow guibg=cyan
+endfunc
+
+augroup colorscheme_coc_setup | au!
+    au ColorScheme * call timer_start(100,{->G_Colors_For_Popups_Setup()})
+augroup END
+
+"colorscheme slate
+"colorscheme koehler
+"colorscheme morning
+"colorscheme evening
+"call timer_start(150, {->execute("colorscheme koehler")})
+"call timer_start(170, {->InsertStatuslineColor("n")})
+colorscheme morning
