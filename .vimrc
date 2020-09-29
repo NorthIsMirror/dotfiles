@@ -509,32 +509,7 @@ let g:EasyOperator_phrase_do_mapping = 0
 let g:EasyOperator_line_do_mapping = 0
 "let g:node_client_debug = 1
 let g:coc_watch_extensions = ["coc-lists"]
-call plug#begin('~/.vim/plugged')
 
-" Make sure you use single quotes
-
-Plug 'mhinz/vim-startify'
-Plug 'tpope/vim-surround'
-Plug 'neoclide/coc.nvim'
-Plug 'easymotion/vim-easymotion'
-Plug 'haya14busa/vim-easyoperator-phrase'
-Plug 'haya14busa/vim-easyoperator-line'
-
-Plug 'zphere-zsh/vim-user-menu'
-Plug 'vim-add-ons/Entirety-Grep'
-"Plug 'zphere-zsh/clavichord-omni-completion'
-"Plug 'zphere-zsh/shell-omni-completion'
-"Plug 'zphere-zsh/shell-auto-popmenu'
-call plug#end()
-
-nmap <Leader>sc <Plug>VimspectorContinue
-nmap <Leader>stb <Plug>VimspectorToggleBreakpoint
-nmap <Leader>S <Plug>VimspectorToggleBreakpoint
-
-nmap <Leader>sso <Plug>VimspectorStepOver
-nmap <Leader>T <Plug>VimspectorStepOver
-nmap <Leader>ssi <Plug>VimspectorStepInto
-nmap <Leader>sst <Plug>VimspectorStepOut
 " Configurationsymotion-hlsearch) and mappings for the plugins…
 nmap <Space>f <Plug>(easymotion-s2)
 nmap s <Plug>(easymotion-overwin-f2)
@@ -595,8 +570,8 @@ nnoremap <ESC>8 :tabnext 8<CR>
 inoremap <ESC>8 <C-O>:tabnext 8<CR>
 nnoremap <ESC><Right> :tabnext<CR>
 inoremap <ESC><Right> <C-O>:tabnext<CR>
-nnoremap <ESC><Left> :tabnext<CR>
-inoremap <ESC><Left> <C-O>:tabnext<CR>
+nnoremap <ESC><Left> :tabprev<CR>
+inoremap <ESC><Left> <C-O>:tabprev<CR>
 
 tnoremap <ESC>1 <C-W>N:tabnext 1<CR>
 tnoremap <ESC>2 <C-W>N:tabnext 2<CR>
@@ -607,7 +582,8 @@ tnoremap <ESC>6 <C-W>N:tabnext 6<CR>
 tnoremap <ESC>7 <C-W>N:tabnext 7<CR>
 tnoremap <ESC>8 <C-W>N:tabnext 8<CR>
 tnoremap <ESC><Right> <C-W>N:tabnext<CR>
-tnoremap <ESC><Left> <C-W>N:tabnext<CR>
+tnoremap <ESC><Left> <C-W>N:tabprev<CR>
+
 highlight Pmenu      ctermfg=3 ctermbg=4 guifg=#ff0000 guibg=#00ff00
 highlight PmenuSel   ctermfg=2 ctermbg=3 guifg=#ff0000 guibg=#00ff00
 highlight PmenuSbar  ctermfg=3 ctermbg=4 guifg=#ff0000 guibg=#00ff00
@@ -791,11 +767,11 @@ func! G_Colors_For_Popups_Setup() abort
     hi PmenuThumb cterm=NONE ctermbg=darkgray ctermfg=227   guibg=#000000 gui=none
     "hi Special    cterm=bold ctermfg=yellow   guifg=Gold    cterm=none    gui=none
     " color for buffer number
-    hi User1 cterm=NONE    ctermfg=red    ctermbg=yellow guifg=red    guibg=white
+    hi User1 cterm=NONE    ctermfg=magenta ctermbg=yellow guifg=red    guibg=white
     " color for filename
-    hi User2 cterm=NONE    ctermfg=black  ctermbg=green  guifg=black  guibg=green
+    hi User2 cterm=NONE    ctermfg=17 ctermbg=green  guifg=black  guibg=green
     " color for position
-    hi User3 cterm=NONE    ctermfg=yellow ctermbg=darkmagenta guifg=yellow guibg=cyan
+    hi User3 cterm=bold    ctermfg=yellow ctermbg=darkmagenta guifg=yellow guibg=cyan
     hi User4 cterm=NONE    ctermfg=white ctermbg=20 guifg=yellow guibg=darkblue
     hi User5 cterm=NONE    ctermfg=white ctermbg=57 cterm=bold guifg=yellow guibg=darkblue
     hi User7 cterm=italic ctermfg=yellow ctermbg=darkmagenta guifg=yellow guibg=cyan
