@@ -4,7 +4,7 @@ set isk+=@-@,.,:,-,+
 set report=0
 set fo+=cr1nqj
 set incsearch
-
+set timeout timeoutlen=3000 ttimeoutlen=100
 
 set completeopt-=noselect,preview
 set completeopt+=noinsert,menuone,popup
@@ -67,7 +67,6 @@ set hidden				" unmodified buffors aren't wiped
 set autowrite
 set autowriteall			
 set isfname-==				" "ctrl-x f" after variable assignment
-set timeoutlen=800 ttimeoutlen=-1
 " 1}}}
 
 " AUTOCMD {{{1
@@ -216,7 +215,7 @@ if has('statusline')
         let fnsize = &columns - 70 
         let &stl = "≈ %4*%.".fnsize."F%*%y%([%R%M]%)%{'!'[&ff=='".&ff."']}
                     \%{'$'[!&list]}%{'~'[&pm=='']}\ %3*«%n»%*%( %5*%.25{DotsAbbr(get(b:,'coc_current_function',''),22)}%*%)
-                    \ ≈ %5*%{strftime('%H:%M')}%* ≈ chr=0x%02B\,%03b\ %=%{SL_Options()}\ \ %l/%L≈%v\ ↔\ %=%c%V %2*%p%%%* ≈"
+                    \ ≈ %5*%{strftime('%H:%M')}%* ≈ chr=0x%02B\,%03b\ %=%{SL_Options()}\ \ %1*%l%*/%L≈%v\ ↔\ %=%c%V %2*%p%%%* ≈"
                    " \%{'$'[!&list]}%{'~'[&pm=='']}\ %3*«%{bufnr()}»%* %7*ƒ%*≈%5*%{get(b:,'coc_current_function','')[0:25]}%*
     endfunc " 2}}}
     "let &statusline=SetStatusLineStyle()
@@ -275,7 +274,7 @@ nnoremap    <F12>   :make<CR>
 inoremap    <F12>   <C-O>:make<CR>
 "nnoremap    <F11>   :cnext<CR>
 "inoremap    <F11>   <C-O>:cnext<CR>
-nnoremap <F11> :source ~/.vim/plugged/clavichord-omni-completion/plugin/clavichord-omni-completion.vim<CR>
+nnoremap <F11> :runtime plugin/entirety-grep.vim<CR>
 nnoremap    <silent> <F8> :call G_ToggleMouse()<CR>
 inoremap    <silent> <F8> <C-O>:call G_ToggleMouse()<CR>
 set pastetoggle=<F7>
@@ -289,6 +288,7 @@ nnoremap    <F1>    :hide<CR>
 inoremap    <F1>    <ESC>:hide<CR>
 "nnoremap    <F1>    :echohl WarningMsg <Bar> :echomsg "Przesunąć dłoń w lewo?" <Bar> :echohl None<CR>
 "inoremap    <F1>    <ESC>:echohl WarningMsg <Bar> :echomsg "Przesunąć dłoń w lewo?" <Bar> :echohl None<CR>
+nmap Q <Nop>
 " 1}}}
 
 
@@ -502,9 +502,13 @@ let c_no_comment_fold=1
 "let c_gnu=1
 let c_no_if0_fold=1
 
+omap <silent> F :<C-U>normal 0<Leader><Leader>f(ahviw<CR>
+nmap <silent> <F10> :MenuBL<CR>
+nmap <silent> <F9> :MenuJL<CR>
 let g:EasyOperator_phrase_do_mapping = 0
 let g:EasyOperator_line_do_mapping = 0
-let g:node_client_debug = 1
+"let g:node_client_debug = 1
+let g:coc_watch_extensions = ["coc-lists"]
 call plug#begin('~/.vim/plugged')
 
 " Make sure you use single quotes
@@ -523,6 +527,14 @@ Plug 'vim-add-ons/Entirety-Grep'
 "Plug 'zphere-zsh/shell-auto-popmenu'
 call plug#end()
 
+nmap <Leader>sc <Plug>VimspectorContinue
+nmap <Leader>stb <Plug>VimspectorToggleBreakpoint
+nmap <Leader>S <Plug>VimspectorToggleBreakpoint
+
+nmap <Leader>sso <Plug>VimspectorStepOver
+nmap <Leader>T <Plug>VimspectorStepOver
+nmap <Leader>ssi <Plug>VimspectorStepInto
+nmap <Leader>sst <Plug>VimspectorStepOut
 " Configurationsymotion-hlsearch) and mappings for the plugins…
 nmap <Space>f <Plug>(easymotion-s2)
 nmap s <Plug>(easymotion-overwin-f2)
@@ -531,13 +543,13 @@ map <Leader>L <Plug>(easymotion-lineforward)
 omap <Leader>l  <Plug>(easyoperator-line-select)
 nmap <Leader>l  <Plug>(easyoperator-line-select)
 xmap <Leader>l  <Plug>(easyoperator-line-select)
-nmap d<leader>l <Plug>(easyoperator-line-delete)
-nmap c<leader>l <Plug>(easyoperator-line-yank)
+nmap d<Leader>l <Plug>(easyoperator-line-delete)
+nmap y<Leader>l <Plug>(easyoperator-line-yank)
 " Phrase…
 omap <Leader>p  <Plug>(easyoperator-phrase-select)
 xmap <Leader>p  <Plug>(easyoperator-phrase-select)
 nmap d<Leader>p <Plug>(easyoperator-phrase-delete)
-nmap c<Leader>p <Plug>(easyoperator-phrase-yank)
+nmap y<Leader>p <Plug>(easyoperator-phrase-yank)
 
 map <Leader>j <Plug>(easymotion-j)
 map <Leader>k <Plug>(easymotion-k)
@@ -547,13 +559,13 @@ map <Leader>P <Plug>(easymotion-prev)
 map <Leader>R <Plug>(easymotion-repeat)
 map  / <Plug>(easymotion-sn)
 omap / <Plug>(easymotion-tn)
-" Not really needed (just highlights differently)
+" Not really needed ('just' highlights differently; also problems with jumps…)
 "map  n <Plug>(easymotion-next)
 "map  N <Plug>(easymotion-prev)
 " Bidirectional & within line 't' motion
 omap t <Plug>(easymotion-bd-tl)
 let g:EasyMotion_smartcase = 1
-let g:EasyMotion_use_upper = 1
+let g:EasyMotion_use_upper = 0
 let g:EasyMotion_use_smartsign_us = 1
 
 "colorscheme spacecamp
@@ -581,6 +593,10 @@ nnoremap <ESC>7 :tabnext 7<CR>
 inoremap <ESC>7 <C-O>:tabnext 7<CR>
 nnoremap <ESC>8 :tabnext 8<CR>
 inoremap <ESC>8 <C-O>:tabnext 8<CR>
+nnoremap <ESC><Right> :tabnext<CR>
+inoremap <ESC><Right> <C-O>:tabnext<CR>
+nnoremap <ESC><Left> :tabnext<CR>
+inoremap <ESC><Left> <C-O>:tabnext<CR>
 
 highlight Pmenu      ctermfg=3 ctermbg=4 guifg=#ff0000 guibg=#00ff00
 highlight PmenuSel   ctermfg=2 ctermbg=3 guifg=#ff0000 guibg=#00ff00
@@ -741,6 +757,20 @@ nnoremap <silent><nowait> <space>p  :<C-u>CocListResume<CR>
 " Next symbol
 nnoremap <silent><nowait> <space>n  :<C-u>CocCommand document.jumpToNextSymbol<CR>
 inoremap <silent><nowait> <Esc>n  <C-o>:<C-u>CocCommand document.jumpToNextSymbol<CR>
+" Explorer
+nnoremap <silent><nowait> <space>e :CocCommand explorer<CR>
+
+let g:coc_explorer_global_presets = {
+\   '.vim': {
+\     'root-uri': '~/.vim',
+\   },
+\   'tab': {
+\     'position': 'tab',
+\     'quit-on-open': v:true,
+\   },
+\ }
+
+
 
 """ Customize colors
 func! G_Colors_For_Popups_Setup() abort
@@ -767,9 +797,10 @@ augroup colorscheme_coc_setup | au!
 augroup END
 
 "colorscheme slate
-"colorscheme koehler
+colorscheme koehler
 "colorscheme morning
 "colorscheme evening
 "call timer_start(150, {->execute("colorscheme koehler")})
 "call timer_start(170, {->InsertStatuslineColor("n")})
-colorscheme morning
+
+set runtimepath^=/root/github/coc-plugs
