@@ -598,6 +598,16 @@ inoremap <ESC><Right> <C-O>:tabnext<CR>
 nnoremap <ESC><Left> :tabnext<CR>
 inoremap <ESC><Left> <C-O>:tabnext<CR>
 
+tnoremap <ESC>1 <C-W>N:tabnext 1<CR>
+tnoremap <ESC>2 <C-W>N:tabnext 2<CR>
+tnoremap <ESC>3 <C-W>N:tabnext 3<CR>
+tnoremap <ESC>4 <C-W>N:tabnext 4<CR>
+tnoremap <ESC>5 <C-W>N:tabnext 5<CR>
+tnoremap <ESC>6 <C-W>N:tabnext 6<CR>
+tnoremap <ESC>7 <C-W>N:tabnext 7<CR>
+tnoremap <ESC>8 <C-W>N:tabnext 8<CR>
+tnoremap <ESC><Right> <C-W>N:tabnext<CR>
+tnoremap <ESC><Left> <C-W>N:tabnext<CR>
 highlight Pmenu      ctermfg=3 ctermbg=4 guifg=#ff0000 guibg=#00ff00
 highlight PmenuSel   ctermfg=2 ctermbg=3 guifg=#ff0000 guibg=#00ff00
 highlight PmenuSbar  ctermfg=3 ctermbg=4 guifg=#ff0000 guibg=#00ff00
