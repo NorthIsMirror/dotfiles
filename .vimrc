@@ -5,6 +5,7 @@ set report=0
 set fo+=cr1nqj
 set incsearch
 set timeout timeoutlen=3000 ttimeoutlen=100
+set fillchars=stl:\ ,stlnc:─,vert:╹,fold:─,diff:─
 
 set completeopt-=noselect,preview
 set completeopt+=noinsert,menuone,popup
@@ -170,6 +171,7 @@ if has('statusline')
         endif
         "echom "exe" "hi!" "statusline" adda "ctermfg=".res[1] "ctermbg=".res[0] addb "guifg=".res[3] "guibg=".res[2]
         exe "hi!" "statusline" adda "ctermfg=".res[1] "ctermbg=".res[0] addb "guifg=".res[3] "guibg=".res[2]
+        hi! statuslinenc ctermfg=238 ctermbg=White guifg=DarkBlue guibg=White
         "echom "Got g:the_key: →" g:the_key "←" "res: →→" string(res) "←←"
         "let m = execute("hi statusline")
         "echom "After the set (2) of the hl group:" m
@@ -195,7 +197,6 @@ if has('statusline')
 
     " Initialize.
     call InsertStatuslineColor('n')
-    hi statuslinenc ctermfg=17 ctermbg=White guifg=DarkBlue guibg=White
 
     " CALLBACK {{{2
     function! StrChPar(string, begin, len)
@@ -509,6 +510,23 @@ let g:EasyOperator_phrase_do_mapping = 0
 let g:EasyOperator_line_do_mapping = 0
 "let g:node_client_debug = 1
 let g:coc_watch_extensions = ["coc-lists"]
+call plug#begin('~/.vim/plugged')
+
+" Make sure you use single quotes
+
+Plug 'mhinz/vim-startify'
+Plug 'tpope/vim-surround'
+Plug 'neoclide/coc.nvim'
+Plug 'easymotion/vim-easymotion'
+Plug 'haya14busa/vim-easyoperator-phrase'
+Plug 'haya14busa/vim-easyoperator-line'
+
+Plug 'zphere-zsh/vim-user-menu'
+Plug 'vim-add-ons/Entirety-Grep'
+"Plug 'zphere-zsh/clavichord-omni-completion'
+"Plug 'zphere-zsh/shell-omni-completion'
+"Plug 'zphere-zsh/shell-auto-popmenu'
+call plug#end()
 
 " Configurationsymotion-hlsearch) and mappings for the plugins…
 nmap <Space>f <Plug>(easymotion-s2)
@@ -550,6 +568,15 @@ let g:zekyll_messages = 1
 
 function! All_files()
   return extend( filter(copy(v:oldfiles), "v:val !~ 'fugitive:\\|NERD_tree\\|^/tmp/\\|.git/'"), map(filter(range(1, bufnr('$')), 'buflisted(v:val)'), 'bufname(v:val)'))
+endfunction
+
+function! G_AllBufsToTabs()
+    for buf in range(1,bufnr("$"))
+        if bufwinnr(buf) == -1 && bufexists(buf) && getbufvar(buf, '&buflisted')
+            tabnew
+            exe "buf" buf
+        endif
+    endfor
 endfunction
 
 nnoremap <ESC>1 :tabnext 1<CR>
@@ -771,9 +798,9 @@ func! G_Colors_For_Popups_Setup() abort
     " color for filename
     hi User2 cterm=NONE    ctermfg=17 ctermbg=green  guifg=black  guibg=green
     " color for position
-    hi User3 cterm=bold    ctermfg=yellow ctermbg=darkmagenta guifg=yellow guibg=cyan
-    hi User4 cterm=NONE    ctermfg=white ctermbg=20 guifg=yellow guibg=darkblue
-    hi User5 cterm=NONE    ctermfg=white ctermbg=57 cterm=bold guifg=yellow guibg=darkblue
+    hi User3 cterm=bold   ctermfg=yellow ctermbg=darkmagenta guifg=yellow guibg=cyan
+    hi User4 cterm=NONE   ctermfg=white  ctermbg=17 guifg=yellow guibg=darkblue
+    hi User5 cterm=NONE   ctermfg=white  ctermbg=57 cterm=bold guifg=yellow guibg=darkblue
     hi User7 cterm=italic ctermfg=yellow ctermbg=darkmagenta guifg=yellow guibg=cyan
     hi! link WarningMsg ErrorMsg
 endfunc
